@@ -1,0 +1,123 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core"
+                         xmlns="sap.m">
+    <Dialog
+        id="findResourcesDialog"
+        title="Find Resources"
+        contentWidth="800px"
+        contentHeight="600px"
+        draggable="true"
+        resizable="true"
+        class="sapUiResponsivePadding--header sapUiResponsivePadding--content sapUiResponsivePadding--footer"
+        afterClose="onFindResourcesDialogClose">
+        
+        <VBox class="sapUiSmallMargin">
+            <Label text="Select one or more employees to allocate (showing employees with allocation &lt;= 95% and not Resigned):" />
+            <SearchField
+                id="findResourcesSearchField"
+                width="100%"
+                placeholder="Search employees by name..."
+                liveChange="onFindResourcesSearch"
+                search="onFindResourcesSearch" />
+            
+            <ScrollContainer height="400px" vertical="true" horizontal="false">
+                <Table
+                    id="findResourcesTable"
+                    mode="MultiSelect"
+                    selectionChange="onFindResourcesSelectionChange"
+                    items="{
+                        path: '/Employees',
+                        sorter: [{
+                            path: 'fullName',
+                            descending: false
+                        }]
+                    }">
+                    <columns>
+                        <Column>
+                            <Text text="OHR ID" />
+                        </Column>
+                        <Column>
+                            <Text text="Full Name" />
+                        </Column>
+                        <Column>
+                            <Text text="Band" />
+                        </Column>
+                        <Column>
+                            <Text text="Role" />
+                        </Column>
+                        <Column>
+                            <Text text="Skills" />
+                        </Column>
+                        <Column>
+                            <Text text="Location" />
+                        </Column>
+                        <Column>
+                            <Text text="Allocation %" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{ohrId}" />
+                                <Text text="{fullName}" />
+                                <Text text="{band}" />
+                                <Text text="{role}" />
+                                <Text text="{skills}" />
+                                <Text text="{location}" />
+                                <Text text="{
+                                    path: 'empallocpercentage',
+                                    formatter: '.formatAllocationPercentage'
+                                }" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </ScrollContainer>
+            
+            <VBox class="sapUiSmallMarginTop">
+                <HBox class="sapUiSmallMarginTop">
+                    <VBox class="sapUiSmallMarginEnd" width="33%">
+                        <Label text="Start Date" labelFor="allocationStartDate" />
+                        <DatePicker
+                            id="allocationStartDate"
+                            valueFormat="yyyy-MM-dd"
+                            displayFormat="long"
+                            placeholder="Select start date" />
+                    </VBox>
+                    <VBox class="sapUiSmallMarginEnd" width="33%">
+                        <Label text="End Date" labelFor="allocationEndDate" />
+                        <DatePicker
+                            id="allocationEndDate"
+                            valueFormat="yyyy-MM-dd"
+                            displayFormat="long"
+                            placeholder="Select end date" />
+                    </VBox>
+                    <VBox width="34%">
+                        <Label text="Allocation %" labelFor="allocationPercentage_find" />
+                        <Input
+                            id="allocationPercentage_find"
+                            type="Number"
+                            value="100"
+                            placeholder="0-100"
+                            width="100%" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+        
+        <beginButton>
+            <Button 
+                text="Allocate" 
+                type="Emphasized" 
+                press="onFindResourcesAllocate"
+                enabled="false"
+                id="btnFindResourcesAllocate" />
+        </beginButton>
+        
+        <endButton>
+            <Button 
+                icon="sap-icon://decline" 
+                press="onFindResourcesDialogClose" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
+

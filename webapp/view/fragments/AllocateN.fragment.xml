@@ -1,0 +1,123 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:f="sap.ui.layout.form"
+  xmlns:l="sap.ui.layout">
+
+  <!-- Container to hold the form and allow padding -->
+  <VBox class="sapUiResponsivePadding--content sapUiResponsivePadding--header sapUiResponsivePadding--footer">
+
+    <!-- Actions Toolbar -->
+    <Toolbar design="Transparent" class="sapUiSmallMarginBottom">
+      <Title text="Resource Allocation" level="H3"/>      
+    </Toolbar>
+
+    <!-- SimpleForm replacing the Dialog content -->
+    <f:SimpleForm
+      id="allocateForm"
+      editable="true"
+      layout="ResponsiveGridLayout"
+      labelSpanXL="2" labelSpanL="2" labelSpanM="2" labelSpanS="2"
+      adjustLabelSpan="false"
+      emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
+      columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"
+      class="sapUiNoContentPadding">
+
+       <!-- Customer -->
+      <Label text="Customer" labelFor="Resinput_Customer"/>
+      <Input
+        id="Resinput_Customer"
+        width="50%"
+        placeholder="Select Customer"
+        showValueHelp="true"
+        valueHelpRequest="onCustomerValueHelpRequest"
+        enabled="true">
+        <layoutData>
+          <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+        </layoutData>
+      </Input>
+
+      <!-- Project -->
+      <Label text="Project" labelFor="Resinput_proj"/>
+      <Input
+        id="Resinput_proj"
+        width="50%"
+        placeholder="Select project"
+        showValueHelp="true"
+        valueHelpRequest="onProjectValueHelpRequest"
+        enabled="false">
+        <layoutData>
+          <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+        </layoutData>
+      </Input>
+
+       <!-- Employee -->
+      <Label text="Employee" labelFor="Resinput_emp"/>
+      <Input
+        id="Resinput_emp"
+        width="50%"
+        placeholder="Select Employee"
+        showValueHelp="true"
+        valueHelpRequest="onEmployeeValueHelpRequest"
+        enabled="false">
+        <layoutData>
+          <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+        </layoutData>
+      </Input>
+     
+      <!-- From -->
+      <Label text="From" labelFor="startDate"/>
+      <DatePicker width="50%" id="startDate" valueFormat="yyyy-MM-dd" displayFormat="long" enabled="false" editable="true" />
+
+      <!-- To -->
+      <Label text="To" labelFor="endDate"/>
+      <DatePicker width="50%" id="endDate" valueFormat="yyyy-MM-dd" displayFormat="long" enabled="false" editable="true"/>
+
+      <!-- Allocation % -->
+      <Label text="Allocation %" labelFor="allocationPercentage_allocate"/>
+      <Input
+        id="allocationPercentage_allocate"
+        type="Number"
+        value="100"
+        placeholder="0-100"
+        width="100%"
+        enabled="false"/>
+    
+      <VBox >
+          <Button text="Allocate" type="Emphasized" press="onAllocateConfirmNew" enabled="false" id="newallocate"/>
+      </VBox>    
+    </f:SimpleForm>
+    <HBox width="100%">
+      <VBox width="99%">
+      <!-- Selected Employees Allocation Panel -->
+      <Label text="" visible="false"/>
+      <Panel
+        id="selectedEmployeesAllocationPanel"
+        headerText="Selected Employees' Current Allocations"
+        expandable="true"
+        expanded="false"
+        class="sapUiSmallMarginTop">
+        <VBox id="selectedEmployeesAllocationVBox" class="sapUiSmallMargin">
+          <Text text="Select employees from the table first" />
+        </VBox>
+      </Panel>
+      </VBox>
+    </HBox>
+    <HBox width="100%">
+      <VBox width="99%">
+      <!-- Project Employees Panel -->
+      <Label text="" visible="false"/>
+      <Panel
+        id="projectEmployeesPanel"
+        headerText="Employees Allocated to Selected Project"
+        expandable="true"
+        expanded="false"
+        class="sapUiSmallMarginTop">
+        <VBox id="projectEmployeesVBox" class="sapUiSmallMargin">
+          <Text text="Select a project to see allocated employees" />
+        </VBox>
+      </Panel>
+      </VBox>
+    </HBox>    
+  </VBox>
+</core:FragmentDefinition>

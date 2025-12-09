@@ -1,0 +1,473 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:table="sap.ui.mdc.table"
+    xmlns:mdct="sap.ui.mdc.table"
+    xmlns:mdcvh="sap.ui.mdc.valuehelp"
+    xmlns:mdcvc="sap.ui.mdc.valuehelp.content"
+    xmlns:layout="sap.f">
+    <layout:DynamicPage
+        id="employeeDynamicPage"
+        fitContent="false"
+        preserveHeaderStateOnScroll="false"
+        headerExpanded="false"
+        toggleHeaderOnTitleClick="true">
+        
+        <!-- Optional Page Title -->
+        <layout:title>
+            <layout:DynamicPageTitle>
+                <layout:heading>
+                    <Title text="Employee Management" level="H2" />
+                </layout:heading>
+            </layout:DynamicPageTitle>
+        </layout:title>
+        
+        <!-- ========== FILTERBAR ========== -->
+        <layout:header>
+            <layout:DynamicPageHeader pinnable="false">
+                <VBox class="sapUiTinyMargin">
+                    <mdc:FilterBar
+                        id="employeeFilterBar"
+                        delegate='{
+                            "name": "glassboard/delegate/EmployeesFilterBarDelegate",
+                            "payload": {
+                                "collectionPath": "Employees"
+                            }
+                        }'
+                        search="onFilterSearch"
+                        showAdaptFiltersButton="true"
+                        showGoButton="true"
+                        filterConditions="{filterModel>/Employees/conditions}"
+                        p13nMode="Item,Value">
+                        <!-- Static filter items - Default filters -->
+                       <mdc:filterItems>
+
+    <!-- ============================
+         OHR ID  (VALUE HELP)
+    ============================ -->
+<mdc:FilterField
+        id="filterEmployeeOHRId"
+        label="OHR ID"
+        width="200px"
+        propertyKey="ohrId"
+        maxConditions="-1"
+        conditions="{filterModel>/Employees/conditions/ohrId}"
+        valueHelp="vhEmployeeOHRId"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhEmployeeOHRId"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['ohrId','band','skills'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgEmployeeOHRId" title="Select OHR ID">
+                        <mdcvc:MDCTable keyPath="ohrId" descriptionPath="ohrId">
+                            <mdc:Table
+                                id="tblEmployeeOHRIdVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                width="100%"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="employeeFilterBar"
+                                filterConditions="{filterModel>/Employees/conditions}"
+                                delegate="{
+                                    name: 'glassboard/delegate/EmployeesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['ohrId','band'] }
+                                }"
+                            >
+                                  <mdc:type>
+                                    <table:GridTableType rowCountMode="Auto" />
+                                    </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+         </mdc:FilterField>
+
+
+
+    <!-- ============================
+         BAND (VALUE HELP)
+    ============================ -->
+    <mdc:FilterField
+        id="filterEmployeeBand"
+        label="Band"
+        width="200px"
+        propertyKey="band"
+        maxConditions="-1"
+        conditions="{filterModel>/Employees/conditions/band}"
+        valueHelp="vhEmployeeBand"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhEmployeeBand"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['band','ohrId','skills'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgEmployeeBand" title="Select Band">
+                        <mdcvc:MDCTable keyPath="band" descriptionPath="band">
+                            <mdc:Table
+                                id="tblEmployeeBandVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                width="100%"
+                                 p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="employeeFilterBar"
+                                filterConditions="{filterModel>/Employees/conditions}"
+                                delegate="{
+                                    name: 'glassboard/delegate/EmployeesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['band','ohrId'] }
+                                }"
+                            > 
+                                <mdc:type>
+                                    <table:GridTableType rowCountMode="Auto" />
+                                    </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         SKILLS (VALUE HELP)
+    ============================ -->
+    <mdc:FilterField
+        id="filterEmployeeSkills"
+        label="Skills"
+        width="250px"
+        propertyKey="skills"
+        maxConditions="-1"
+        conditions="{filterModel>/Employees/conditions/skills}"
+        valueHelp="vhEmployeeSkills"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhEmployeeSkills"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['skills','ohrId','band'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgEmployeeSkills" title="Select Skill">
+                        <mdcvc:MDCTable keyPath="skills" descriptionPath="skills">
+                            <mdc:Table
+                                id="tblEmployeeSkillsVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                 p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="employeeFilterBar"
+                                filterConditions="{filterModel>/Employees/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/EmployeesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['skills','ohrId','band'] }
+                                }"
+                            >    <mdc:type>
+                                    <table:GridTableType rowCountMode="Auto" />
+                                    </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Skill" propertyKey="skills">
+                                        <Text text="{skills}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+</mdc:filterItems>
+
+                    </mdc:FilterBar>
+                </VBox>
+            </layout:DynamicPageHeader>
+        </layout:header>
+        
+        <!-- ========== MAIN CONTENT ========== -->
+        <layout:content>
+            <VBox class="sapUiSmallMargin">
+                <!-- ===== TABLE PANEL ===== -->
+                <Panel class="sapUiResponsiveMargin" expandable="false">
+                    <Toolbar>
+                        <ToolbarSpacer />
+                        <SearchField
+                            id="employeeSearchField"
+                            width="300px"
+                            placeholder="Search employees..."
+                            liveChange="onEmployeeSearch"
+                            search="onEmployeeSearch" />
+                    </Toolbar>
+                    <ScrollContainer height="220px" vertical="true" horizontal="false">
+                        <mdc:Table
+                            id="Employees"
+                            header="Employees"
+                            class="verticalsTable rowDetailToggleTable"
+                            autoBindOnInit="false"
+                            busyIndicatorDelay="0"
+                            width="100%"
+                            p13nMode="Column,Sort,Filter,Group"
+                            selectionMode="Single"
+                            delegate='{
+                                "name": "glassboard/delegate/EmployeesTableDelegate",
+                                "payload": {
+                                    "collectionPath": "Employees"
+                                }
+                            }'
+                            showRowCount="true"
+                            threshold="25"
+                            enableExport="true"
+                            enableAutoColumnWidth="false"
+                            filter="employeeFilterBar"
+                            filterConditions="{filterModel>/Employees/conditions}"
+                            selectionChange="onSelectionChange"
+                            type="ResponsiveTable">
+                            <mdc:type>
+                                <mdct:ResponsiveTableType />
+                            </mdc:type>
+                            <mdc:actions>
+                                <SegmentedButton 
+                                    selectedKey="less"
+                                    selectionChange="onToggleRowDetail"
+                                    tooltip="Toggle Row Details">
+                                    <items>
+                                        <SegmentedButtonItem key="more" icon="sap-icon://detail-more" tooltip="Show More"/>
+                                        <SegmentedButtonItem key="less" icon="sap-icon://detail-less" tooltip="Show Less"/>
+                                    </items>
+                                </SegmentedButton>
+                                <Button icon="sap-icon://delete" id="Delete_emp" tooltip="Delete" press="onDeletePress" enabled="false" />
+                                <SplitButton
+                                    id="employeeUpload"
+                                    icon="sap-icon://upload"
+                                    tooltip="Upload"
+                                    type="Transparent"
+                                    press="onUpload"
+                                    arrowPress="onSplitButtonArrowPress"
+                                />
+                            </mdc:actions>
+                        </mdc:Table>
+                    </ScrollContainer>
+                </Panel>
+                
+                <!-- ===== SPACE BETWEEN TABLE AND FORM ===== -->
+                <HBox width="100%" class="extraSpace"><ToolbarSpacer /></HBox>
+                
+                <!-- ===== FORM PANEL ===== -->
+                <Panel headerText="Employee Details" class="sapUiResponsiveMargin" expandable="false">
+                        <!-- Header Toolbar with Buttons -->
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="Employee Details" level="H2" />
+                            <ToolbarSpacer />
+                            <Button id="editButton_emp" text="Edit" type="Emphasized" press="onEditEmployeeForm" enabled="false" class="sapUiSmallMarginEnd" />
+                            <Button id="submitButton_emp" text="Submit" type="Accept" press="onSubmitEmployee" />
+                            <Button id="cancelFormButton_emp" text="Cancel" type="Reject" press="onCancelEmployeeForm" class="sapUiSmallMarginBegin" />
+                            
+                        </Toolbar>
+                    </headerToolbar>
+                    <VBox class="sapUiSmallMargin">
+                        <HBox width="100%">
+                            <!-- Left Column (8 fields) -->
+                            <VBox width="50%" class="sapUiSmallMarginEnd">
+                                <f:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    labelSpanL="3"
+                                    labelSpanM="3"
+                                    adjustLabelSpan="false"
+                                    emptySpanL="1"
+                                    emptySpanM="1"
+                                    columnsL="1"
+                                    columnsM="1"
+                                    class="sapUiNoContentPadding">
+                                    <Label text="OHR ID" />
+                                    <Input id="inputOHRId_emp" value="{employeeModel>/ohrId}" width="100%" enabled="false" />
+                                    <Label text="Full Name" />
+                                    <Input id="inputFullName_emp" value="{employeeModel>/fullName}" width="100%" />
+                                    <Label text="Email ID" />
+                                    <Input id="inputMailId_emp" value="{employeeModel>/mailid}" width="100%" />
+                                    <Label text="Gender" />
+                                    <Select id="inputGender_emp" selectedKey="{employeeModel>/gender}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Gender..." />
+                                            <core:Item key="Male" text="Male" />
+                                            <core:Item key="Female" text="Female" />
+                                            <core:Item key="Others" text="Others" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Employee Type" />
+                                    <Select id="inputEmployeeType_emp" selectedKey="{employeeModel>/employeeType}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Employee Type..." />
+                                            <core:Item key="FullTime" text="Full Time" />
+                                            <core:Item key="SubCon" text="Subcon" />
+                                            <core:Item key="Intern" text="Intern" />
+                                            <core:Item key="YTJ" text="Yet To Join" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Date of Joining" />
+                                    <DatePicker id="inputDoJ_emp" value="{employeeModel>/doj}" valueFormat="yyyy-MM-dd" displayFormat="short" width="100%" />
+                                    <Label text="Band" />
+                                    <Select id="inputBand_emp" selectedKey="{employeeModel>/band}" width="100%" change="onBandChange">
+                                        <items>
+                                            <core:Item key="" text="Select Band..." />
+                                            <core:Item key="1" text="1" />
+                                            <core:Item key="2" text="2" />
+                                            <core:Item key="3" text="3" />
+                                            <core:Item key="4A" text="4A" />
+                                            <core:Item key="4B-C" text="4B-C" />
+                                            <core:Item key="4B-LC" text="4B-LC" />
+                                            <core:Item key="4C" text="4C" />
+                                            <core:Item key="4D" text="4D" />
+                                            <core:Item key="5A" text="5A" />
+                                            <core:Item key="5B" text="5B" />
+                                            <core:Item key="Subcon" text="Subcon" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Designation" />
+                                    <Select id="inputRole_emp" selectedKey="{employeeModel>/role}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Designation..." />
+                                        </items>
+                                    </Select>
+                                </f:SimpleForm>
+                            </VBox>
+                            
+                            <!-- Right Column (7 fields) -->
+                            <VBox width="50%" class="sapUiSmallMarginBegin">
+                                <f:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    labelSpanL="3"
+                                    labelSpanM="3"
+                                    adjustLabelSpan="false"
+                                    emptySpanL="1"
+                                    emptySpanM="1"
+                                    columnsL="1"
+                                    columnsM="1"
+                                    class="sapUiNoContentPadding">
+                                  <Label text="Location" />
+                                    <Select id="inputLocation_emp"
+                                            selectedKey="{employeeModel>/location}"
+                                            width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Location..." />
+                                            <core:Item key="Nearshore" text="Nearshore" />
+                                            <core:Item key="Offshore" text="Offshore" />
+                                            <core:Item key="Onshore" text="Onshore" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Country" />
+                                    <Select id="inputCountry_emp" selectedKey="{employeeModel>/country}" width="100%" change="onEmployeeCountryChange">
+                                        <items>
+                                            <core:Item key="" text="Select Country..." />
+                                        </items>
+                                    </Select>
+                                    <Label text="City" />
+                                    <Select id="inputCity_emp" selectedKey="{employeeModel>/city}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select City..." />
+                                        </items>
+                                    </Select>
+                                    <Label text="Supervisor" />
+                                    <Input 
+                                        id="inputSupervisor_emp" 
+                                        value="{employeeModel>/supervisorOHR}" 
+                                        width="100%"
+                                        placeholder="Select Supervisor"
+                                        showValueHelp="true"
+                                        valueHelpRequest="onEmployeeValueHelpRequest">
+                                        <layoutData>
+                                            <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+                                        </layoutData>
+                                    </Input>
+                                    <Label text="Skills" />
+                                    <MultiComboBox 
+                                        id="inputSkills_emp" 
+                                        width="100%" 
+                                        placeholder="Select skills"
+                                        selectionChange="onSkillsSelectionChange"
+                                        items="{
+                                            path: '/Skills',
+                                            templateShareable: false
+                                        }">
+                                        <core:Item key="{name}" text="{name}" />
+                                    </MultiComboBox>
+                                    <Label text="Status" />
+                                    <Select id="inputStatus_emp" selectedKey="{employeeModel>/status}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Status..." />
+                                            <core:Item key="PreAllocated" text="Pre Allocated" />
+                                            <core:Item key="Allocated" text="Allocated" />
+                                            <core:Item key="Resigned" text="Resigned" />
+                                            <core:Item key="Unproductive Bench" text="Unproductive Bench" />
+                                            <core:Item key="Inactive Bench" text="Inactive Bench" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Last Working Date" />
+                                    <DatePicker id="inputLWD_emp" value="{employeeModel>/lwd}" valueFormat="yyyy-MM-dd" displayFormat="short" width="100%" />
+                                    <Label text="Unit/Service Line" />
+                                    <Select id="inputUnit_emp" selectedKey="{employeeModel>/unit}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Unit..." />
+                                            <core:Item key="GEV" text="GEV" />
+                                            <core:Item key="HMS" text="HMS" />
+                                            <core:Item key="CNH" text="CNH" />
+                                            <core:Item key="FS" text="FS" />                                                                                
+ 
+                                        </items>
+                                    </Select>
+                                </f:SimpleForm>
+                            </VBox>
+                        </HBox>
+                        
+                    </VBox>
+                </Panel>
+            </VBox>
+        </layout:content>
+    </layout:DynamicPage>
+</core:FragmentDefinition>

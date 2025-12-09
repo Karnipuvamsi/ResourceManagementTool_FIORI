@@ -1,0 +1,524 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:table="sap.ui.mdc.table"
+    xmlns:mdct="sap.ui.mdc.table"
+    xmlns:mdcvh="sap.ui.mdc.valuehelp"
+    xmlns:mdcvc="sap.ui.mdc.valuehelp.content"
+    xmlns:layout="sap.f">
+    <layout:DynamicPage
+        id="projectDynamicPage"
+        fitContent="false"
+        preserveHeaderStateOnScroll="false"
+        headerExpanded="false"
+        toggleHeaderOnTitleClick="true">
+        
+        <!-- Optional Page Title -->
+        <layout:title>
+            <layout:DynamicPageTitle>
+                <layout:heading>
+                    <Title text="Project Management" level="H2" />
+                </layout:heading>
+            </layout:DynamicPageTitle>
+        </layout:title>
+        
+        <!-- ========== FILTERBAR ========== -->
+        <layout:header>
+            <layout:DynamicPageHeader pinnable="false">
+                <VBox class="sapUiTinyMargin">
+                    <mdc:FilterBar
+                        id="projectFilterBar"
+                        delegate='{
+                            "name": "glassboard/delegate/ProjectsFilterBarDelegate",
+                            "payload": {
+                                "collectionPath": "Projects"
+                            }
+                        }'
+                        search="onFilterSearch"
+                        showAdaptFiltersButton="true"
+                        showGoButton="true"
+                        variantBackreference="projectFilterBar"
+                        filterConditions="{filterModel>/Projects/conditions}"
+                        p13nMode="Item,Value">
+                        <!-- Static filter items - Default filters -->
+                        <mdc:filterItems>
+
+    <!-- ============================
+         INTERNAL PID (SAP PID)
+    ============================ -->
+    <mdc:FilterField
+        id="filterSapPId"
+        label="Internal PID"
+        width="200px"
+        propertyKey="sapPId"
+        maxConditions="-1"
+        conditions="{filterModel>/Projects/conditions/sapPId}"
+        valueHelp="vhSapPId"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhSapPId"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['sapPId','sfdcPId','projectType'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgSapPId" title="Select Internal PID">
+                        <mdcvc:MDCTable keyPath="sapPId" descriptionPath="sapPId">
+                            <mdc:Table
+                                id="tblSapPIdVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="projectFilterBar"
+                                filterConditions="{filterModel>/Projects/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ProjectsTableDelegate',
+                                    payload: { collectionPath: 'Projects', searchKeys: ['sapPId','projectType'] }
+                                }"
+                            >  <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Internal PID" propertyKey="sapPId">
+                                        <Text text="{sapPId}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Project Type" propertyKey="projectType">
+                                        <Text text="{projectType}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         SFDC PID (Actual PID)
+    ============================ -->
+    <mdc:FilterField
+        id="filterSfdcPId"
+        label="Actual PID"
+        width="200px"
+        propertyKey="sfdcPId"
+        maxConditions="-1"
+        conditions="{filterModel>/Projects/conditions/sfdcPId}"
+        valueHelp="vhSfdcPId"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhSfdcPId"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['sfdcPId','sapPId','projectType'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgSfdcPId" title="Select Actual PID">
+                        <mdcvc:MDCTable keyPath="sfdcPId" descriptionPath="sfdcPId">
+                            <mdc:Table
+                                id="tblSfdcPIdVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="projectFilterBar"
+                                filterConditions="{filterModel>/Projects/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ProjectsTableDelegate',
+                                    payload: { collectionPath: 'Projects', searchKeys: ['sfdcPId','projectType'] }
+                                }"
+                            >  <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Actual PID" propertyKey="sfdcPId">
+                                        <Text text="{sfdcPId}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Project Type" propertyKey="projectType">
+                                        <Text text="{projectType}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         PROJECT TYPE
+    ============================ -->
+    <mdc:FilterField
+        id="filterProjectType"
+        label="Project Type"
+        width="200px"
+        propertyKey="projectType"
+        maxConditions="-1"
+        conditions="{filterModel>/Projects/conditions/projectType}"
+        valueHelp="vhProjectType"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhProjectType"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['projectType','sapPId','sfdcPId'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgProjectType" title="Select Project Type">
+                        <mdcvc:MDCTable keyPath="projectType" descriptionPath="projectType">
+                            <mdc:Table
+                                id="tblProjectTypeVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="projectFilterBar"
+                                filterConditions="{filterModel>/Projects/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ProjectsTableDelegate',
+                                    payload: { collectionPath: 'Projects', searchKeys: ['projectType'] }
+                                }"
+                            >  <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Project Type" propertyKey="projectType">
+                                        <Text text="{projectType}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Internal PID" propertyKey="sapPId">
+                                        <Text text="{sapPId}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         SOW RECEIVED
+    ============================ -->
+    <mdc:FilterField
+        id="filterSOWReceived"
+        label="SOW Received"
+        width="200px"
+        propertyKey="SOWReceived"
+        maxConditions="-1"
+        conditions="{filterModel>/Projects/conditions/SOWReceived}"
+        valueHelp="vhSOWReceived"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhSOWReceived"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['SOWReceived','projectType'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgSOWReceived" title="Select SOW Status">
+                        <mdcvc:MDCTable keyPath="SOWReceived" descriptionPath="SOWReceived">
+                            <mdc:Table
+                                id="tblSOWReceivedVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="projectFilterBar"
+                                filterConditions="{filterModel>/Projects/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ProjectsTableDelegate',
+                                    payload: { collectionPath: 'Projects', searchKeys: ['SOWReceived'] }
+                                }"
+                            >  <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type> 
+                                <mdc:columns>
+                                    <mdct:Column header="SOW Received" propertyKey="SOWReceived">
+                                        <Text text="{SOWReceived}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Project Type" propertyKey="projectType">
+                                        <Text text="{projectType}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+</mdc:filterItems>
+
+                    </mdc:FilterBar>
+                </VBox>
+            </layout:DynamicPageHeader>
+        </layout:header>
+        
+        <!-- ========== MAIN CONTENT ========== -->
+        <layout:content>
+            <VBox class="sapUiSmallMargin">
+                <!-- ===== TABLE PANEL ===== -->
+                <Panel class="sapUiResponsiveMargin" expandable="false">
+                    <Toolbar>
+                        <ToolbarSpacer />
+                        <SearchField
+                            id="projectSearchField"
+                            width="300px"
+                            placeholder="Search projects..."
+                            liveChange="onProjectSearch"
+                            search="onProjectSearch" />
+                    </Toolbar>
+                    <ScrollContainer height="220px" vertical="true" horizontal="false">
+                        <mdc:Table
+                            id="Projects"
+                            header="Projects"
+                            class="verticalsTable rowDetailToggleTable"
+                            autoBindOnInit="false"
+                            busyIndicatorDelay="0"
+                            width="100%"
+                            p13nMode="Column,Sort,Filter,Group"
+                            selectionMode="Single"
+                            delegate='{
+                                "name": "glassboard/delegate/ProjectsTableDelegate",
+                                "payload": {
+                                    "collectionPath": "Projects"
+                                }
+                            }'
+                            showRowCount="true"
+                            threshold="20"
+                            enableExport="true"
+                            enableAutoColumnWidth="false"
+                            filter="projectFilterBar"
+                            filterConditions="{filterModel>/Projects/conditions}"
+                            selectionChange="onSelectionChange"
+                            type="ResponsiveTable">
+                            <mdc:type>
+                                <mdct:ResponsiveTableType />
+                            </mdc:type>
+                            <mdc:actions>
+                                <SegmentedButton 
+                                    selectedKey="less"
+                                    selectionChange="onToggleRowDetail"
+                                    tooltip="Toggle Row Details">
+                                    <items>
+                                        <SegmentedButtonItem key="more" icon="sap-icon://detail-more" tooltip="Show More"/>
+                                        <SegmentedButtonItem key="less" icon="sap-icon://detail-less" tooltip="Show Less"/>
+                                    </items>
+                                </SegmentedButton>
+                                <Button icon="sap-icon://delete" id="btnDelete_proj" tooltip="Delete" press="onDeletePress" enabled="false" />
+                                <SplitButton
+                                    id="projectUpload"
+                                    icon="sap-icon://upload"
+                                    tooltip="Upload"
+                                    type="Transparent"
+                                    press="onUpload"
+                                    arrowPress="onSplitButtonArrowPress"
+                                />
+                            </mdc:actions>
+                        </mdc:Table>
+                    </ScrollContainer>
+                </Panel>
+                
+                <!-- ===== SPACE BETWEEN TABLE AND FORM ===== -->
+                <HBox width="100%" class="extraSpace"><ToolbarSpacer /></HBox>
+                
+                <!-- ===== FORM PANEL ===== -->
+                <Panel headerText="Project Details" class="sapUiResponsiveMargin" expandable="false">
+                                        <headerToolbar>
+                        <Toolbar>
+                            <Title text="Project Details" level="H2" />
+                            <ToolbarSpacer />
+                            <Button id="editButton_proj" text="Edit" type="Emphasized" press="onEditProjectForm" enabled="false" class="sapUiSmallMarginEnd" />
+                            <Button id="submitButton_proj" text="Submit" type="Accept" press="onSubmitProject" />
+                            <Button id="cancelFormButton_proj" text="Cancel" type="Reject" press="onCancelProjectForm" class="sapUiSmallMarginBegin" />
+                            
+                        </Toolbar>
+                    </headerToolbar>
+                    <VBox class="sapUiSmallMargin">
+                        <HBox width="100%">
+                            <!-- Left Column -->
+                            <VBox width="50%" class="sapUiSmallMarginEnd">
+                                <f:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    labelSpanL="3"
+                                    labelSpanM="3"
+                                    adjustLabelSpan="false"
+                                    emptySpanL="1"
+                                    emptySpanM="1"
+                                    columnsL="1"
+                                    columnsM="1"
+                                    class="sapUiNoContentPadding">
+                                    <Label text="Opportunity" />
+                                    <Input 
+                                        id="inputOppId_proj" 
+                                        width="100%"
+                                        placeholder="Select Opportunity"
+                                        showValueHelp="true"
+                                        valueHelpRequest="onOpportunityValueHelpRequest">
+                                        <layoutData>
+                                            <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+                                        </layoutData>
+                                    </Input>
+                                    <Label text="Internal Project ID" />
+                                    <Input id="inputSapProjId_proj" value="{projectModel>/sapPId}" width="100%" enabled="false" placeholder="Auto-generated" visible="false"/>
+                                    <Label text="Actual Project ID" />
+                                    <Input id="inputSfdcProjId_proj" value="{projectModel>/sfdcPId}" width="100%" />
+                                    <Label text="Project Name" />
+                                    <Input id="inputProjectName_proj" value="{projectModel>/projectName}" width="100%" />
+                                    <Label text="GPM" />
+                                    <Input 
+                                        id="inputGPM_proj" 
+                                        value="{projectModel>/gpm}" 
+                                        width="100%"
+                                        placeholder="Select GPM"
+                                        showValueHelp="true"
+                                        valueHelpRequest="onGPMValueHelpRequest">
+                                        <layoutData>
+                                            <f:ColumnElementData cellsSmall="12" cellsLarge="12" />
+                                        </layoutData>
+                                    </Input>
+                                    <Label text="Project Type" />
+                                    <Select id="inputProjectType_proj" selectedKey="{projectModel>/projectType}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Project Type..." />
+                                            <core:Item key="FixedPrice" text="Fixed Price" />
+                                            <core:Item key="TransactionBased" text="Transaction Based" />
+                                            <core:Item key="FixedMonthly" text="Fixed Monthly" />
+                                            <core:Item key="PassThru" text="Pass Thru" />
+                                            <core:Item key="Divine" text="Divine" />
+                                            <core:Item key="TimeAndMaterial" text="Time &amp; Material" />
+                                        </items>
+                                    </Select>
+                                    <Label text="SOW Received" />
+                                    <Select id="inputSOWReceived_proj" selectedKey="{projectModel>/SOWReceived}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select SOW Received..." />
+                                            <core:Item key="Yes" text="Yes" />
+                                            <core:Item key="No" text="No" />
+                                        </items>
+                                    </Select>
+                                    <Label text="PO Received" />
+                                    <Select id="inputPOReceived_proj" selectedKey="{projectModel>/POReceived}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select PO Received..." />
+                                            <core:Item key="Yes" text="Yes" />
+                                            <core:Item key="No" text="No" />
+                                        </items>
+                                    </Select>
+                                    <Label text="Status" />
+                                    <Select id="inputStatus_proj" selectedKey="{projectModel>/status}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Status..." />
+                                            <core:Item key="Active" text="Active" />
+                                            <core:Item key="Closed" text="Closed" />
+                                            <core:Item key="ToBeCreated" text="TO BE CREATED" />
+                                        </items>
+                                    </Select>
+                                </f:SimpleForm>
+                            </VBox>
+                            
+                            <!-- Right Column -->
+                            <VBox width="50%" class="sapUiSmallMarginBegin">
+                                <f:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    labelSpanL="3"
+                                    labelSpanM="3"
+                                    adjustLabelSpan="false"
+                                    emptySpanL="1"
+                                    emptySpanM="1"
+                                    columnsL="1"
+                                    columnsM="1"
+                                    class="sapUiNoContentPadding">
+                                    <Label text="Segment" />
+                                    <Select id="inputSegment_proj" selectedKey="{projectModel>/segment}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Segment..." />
+                                            <core:Item key="Data" text="Data" />
+                                            <core:Item key="Tech" text="Tech" />
+                                            <core:Item key="AI" text="AI" />                                           
+                                        </items>
+                                    </Select>
+                                    <Label text="Vertical" />
+                                    <Select id="inputVertical_proj" selectedKey="{projectModel>/vertical}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Vertical..." />
+                                            <core:Item key="HMS" text="HMS" />
+                                            <core:Item key="CNH" text="CNH" />
+                                            <core:Item key="FS" text="FS" />                                               
+
+                                        </items>
+                                    </Select>
+                                     <Label text="Sub-Vertical" />
+                                    <Select id="inputSubVertical_proj" selectedKey="{projectModel>/subVertical}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Sub-Vertical..." />
+                                            <core:Item key="SAP" text="SAP" />
+                                            <core:Item key="Digital" text="Digital" />
+                                                                                     
+
+                                        </items>
+                                    </Select>
+                                    <Label text="Unit/Service Line" />
+                                    <Select id="inputUnit_proj" selectedKey="{projectModel>/unit}" width="100%">
+                                        <items>
+                                            <core:Item key="" text="Select Unit..." />
+                                            <core:Item key="GEV" text="GEV" />
+                                            <core:Item key="HMS" text="HMS" />
+                                            <core:Item key="CNH" text="CNH" />
+                                            <core:Item key="FS" text="FS" />
+                                                                                     
+
+                                        </items>
+                                    </Select>
+                                    
+                                    <Label text="Required Resources" />
+                                    <Input id="inputRequiredResources_proj" value="{projectModel>/requiredResources}" width="100%" type="Number" />
+                                    <Label text="Allocated Resources" />
+                                    <Input id="inputAllocatedResources_proj" value="{projectModel>/allocatedResources}" width="100%" type="Number" />
+                                    <Label text="To Be Allocated" />
+                                    <Input id="inputToBeAllocated_proj" value="{projectModel>/toBeAllocated}" width="100%" type="Number" />
+                                    <Label text="Start Date" />
+                                    <DatePicker id="inputStartDate_proj" value="{projectModel>/startDate}" valueFormat="yyyy-MM-dd" displayFormat="short" width="100%" />
+                                    <Label text="End Date" />
+                                    <DatePicker id="inputEndDate_proj" value="{projectModel>/endDate}" valueFormat="yyyy-MM-dd" displayFormat="short" width="100%" />
+                                </f:SimpleForm>
+                            </VBox>
+                        </HBox>
+                        
+
+                    </VBox>
+                </Panel>
+            </VBox>
+        </layout:content>
+    </layout:DynamicPage>
+</core:FragmentDefinition>

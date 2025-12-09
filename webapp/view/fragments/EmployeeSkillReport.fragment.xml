@@ -1,0 +1,179 @@
+<core:FragmentDefinition  
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:table="sap.ui.mdc.table"
+    xmlns:mdct="sap.ui.mdc.table"
+    xmlns:mdcvh="sap.ui.mdc.valuehelp"
+    xmlns:mdcvc="sap.ui.mdc.valuehelp.content"
+    xmlns:layout="sap.f">
+    <layout:DynamicPage
+        id="employeeSkillReportDynamicPage"
+        fitContent="false"
+        preserveHeaderStateOnScroll="false"
+        headerExpanded="true"
+        toggleHeaderOnTitleClick="false">
+       
+        <layout:title>
+            <layout:DynamicPageTitle>
+                <layout:heading>
+                    <Title text="Employee Skill Report" level="H2" />
+                </layout:heading>
+            </layout:DynamicPageTitle>
+        </layout:title>
+       
+        <layout:header>
+            <layout:DynamicPageHeader pinnable="false">
+                <VBox class="sapUiTinyMargin">
+                    <mdc:FilterBar
+                        id="employeeSkillReportFilterBar"
+                        delegate='{
+                            "name": "glassboard/delegate/EmployeeSkillReportFilterBarDelegate",
+                            "payload": {
+                                "collectionPath": "EmployeeSkillReport"
+                            }
+                        }'
+                        search="onFilterSearch"
+                        showAdaptFiltersButton="true"
+                        showGoButton="true"
+                        filterConditions="{filterModel>/EmployeeSkillReport/conditions}"
+                        p13nMode="Item,Value">
+                        <!-- Static filter items - Default filters -->
+                        <mdc:filterItems>
+                            <!-- Skill Name Filter -->
+                            <mdc:FilterField
+                                id="filterSkillReportSkillName"
+                                label="Skill Name"
+                                conditions="{filterModel>/EmployeeSkillReport/conditions/skillName}"
+                                propertyKey="skillName"
+                                maxConditions="-1"
+                                required="false"
+                                display="Description"
+                                width="250px"
+                                editMode="Editable"
+                                valueHelp="vhSkill"
+                               
+                            >
+                             <mdc:dependents>
+                                    <mdc:ValueHelp
+                                        id="vhSkill"
+                                        delegate="{
+                                            name: 'glassboard/delegate/SearchValueHelpDelegate',
+                                            payload: { searchKeys: ['skillName', 'category'] }
+                                        }"
+                                    >
+                                    <!-- DIALOG -->
+                                        <mdc:dialog>
+                                            <mdcvh:Dialog id="dlgSkill" title="Select Skill ">
+                                                <mdcvc:MDCTable keyPath="skillName" descriptionPath="skillName">
+                                                    <mdc:Table
+                                                        id="tbSkillVH"
+                                                        autoBindOnInit="true"
+                                                        width="100%"
+                                                        selectionMode="Multi"
+                                                        p13nMode="Column,Sort"
+                                                        enableAutoColumnWidth="true"
+                                                        threshold="20"
+                                                          delegate='{
+                                "name": "glassboard/delegate/EmployeeSkillReportTableDelegate",
+                                "payload": {
+                                    "collectionPath": "EmployeeSkillReport"
+                                }
+                            }'
+ 
+                                                    >
+                                                        <mdc:type>
+                                                            <table:GridTableType rowCountMode="Auto" />
+                                                        </mdc:type>
+                                                        <mdc:columns>
+                                                            <mdct:Column
+                                                                id="BenchVHSkill"
+                                                                header="Skill"
+                                                                propertyKey="skillName"
+                                                            >
+                                                                <Text text="{skillName}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column
+                                                                id="BenchVHCat"
+                                                                header="Category"
+                                                                propertyKey="category"
+                                                            >
+                                                                <Text text="{category}" />
+                                                            </mdct:Column>
+                                                           
+                                                        </mdc:columns>
+                                                    </mdc:Table>
+                                                </mdcvc:MDCTable>
+                                            </mdcvh:Dialog>
+                                        </mdc:dialog>
+                                    </mdc:ValueHelp>
+                                </mdc:dependents>
+                            </mdc:FilterField>
+                            <!-- Category Filter -->
+                            <mdc:FilterField
+                                id="filterSkillReportCategory"
+                                label="Category"
+                                conditions="{filterModel>/EmployeeSkillReport/conditions/category}"
+                                propertyKey="category"
+                                maxConditions="-1"
+                                required="false"
+                                caseSensitive="false"
+                                width="200px"
+                                delegate='{
+                                    "name": "sap/ui/mdc/field/FieldBaseDelegate",
+                                    "payload": {}
+                                }'
+                            />
+                        </mdc:filterItems>
+                    </mdc:FilterBar>
+                </VBox>
+            </layout:DynamicPageHeader>
+        </layout:header>
+       
+        <layout:content>
+            <VBox class="sapUiSmallMargin">
+                <Panel class="sapUiResponsiveMargin" expandable="false">
+                    <ScrollContainer height="600px" vertical="true" horizontal="false">
+                        <mdc:Table
+                            id="EmployeeSkillReportTable"
+                            header="Employee Skill Report"
+                            class="verticalsTable rowDetailToggleTable"
+                            autoBindOnInit="true"
+                            busyIndicatorDelay="0"
+                            width="100%"
+                            p13nMode="Column,Sort,Filter,Group"
+                            selectionMode="None"
+                            type="Table"
+                            delegate='{
+                                "name": "glassboard/delegate/EmployeeSkillReportTableDelegate",
+                                "payload": {
+                                    "collectionPath": "EmployeeSkillReport"
+                                }
+                            }'
+                            showRowCount="true"
+                            threshold="20"
+                            enableExport="true"
+                            enableAutoColumnWidth="false"
+                            filter="employeeSkillReportFilterBar"
+                            filterConditions="{filterModel>/EmployeeSkillReport/conditions}">
+                           
+                            
+                            <mdc:actions>
+                                <SegmentedButton
+                                    selectedKey="less"
+                                    selectionChange="onToggleRowDetail"
+                                    tooltip="Toggle Row Details">
+                                    <items>
+                                        <SegmentedButtonItem key="more" icon="sap-icon://detail-more" tooltip="Show More"/>
+                                        <SegmentedButtonItem key="less" icon="sap-icon://detail-less" tooltip="Show Less"/>
+                                    </items>
+                                </SegmentedButton>
+                            </mdc:actions>
+                        </mdc:Table>
+                    </ScrollContainer>
+                </Panel>
+            </VBox>
+        </layout:content>
+    </layout:DynamicPage>
+</core:FragmentDefinition>

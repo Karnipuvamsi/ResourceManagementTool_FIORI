@@ -1,0 +1,288 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core"
+                         xmlns="sap.m"
+                         xmlns:mdc="sap.ui.mdc"
+                         xmlns:mdct="sap.ui.mdc.table"
+                         xmlns:mdcvh="sap.ui.mdc.valuehelp"
+                         xmlns:mdcvc="sap.ui.mdc.valuehelp.content"
+                         xmlns:table="sap.ui.mdc.table"
+                         xmlns:layout="sap.f">
+    <layout:DynamicPage
+        id="employeeBenchReportDynamicPage"
+        fitContent="false"
+        preserveHeaderStateOnScroll="false"
+        headerExpanded="true"
+        toggleHeaderOnTitleClick="false">
+       
+        <layout:title>
+            <layout:DynamicPageTitle>
+                <layout:heading>
+                    <Title text="Employee Bench Report" level="H2" />
+                </layout:heading>
+            </layout:DynamicPageTitle>
+        </layout:title>
+       
+        <layout:header>
+            <layout:DynamicPageHeader pinnable="false">
+                <VBox class="sapUiTinyMargin">
+                    <mdc:FilterBar
+                        id="employeeBenchReportFilterBar"
+                        delegate='{
+                            "name": "glassboard/delegate/EmployeeBenchReportFilterBarDelegate",
+                            "payload": {
+                                "collectionPath": "EmployeeBenchReport"
+                            }
+                        }'
+                        search="onFilterSearch"
+                        showAdaptFiltersButton="true"
+                        showGoButton="true"
+                        showRestoreButton="true"
+                        showVariantManagement="true"
+                        variantBackreference="employeeBenchReportFilterBar"
+                        filterConditions="{filterModel>/EmployeeBenchReport/conditions}"
+                        p13nMode="Item,Value">
+                        <!-- Static filter items - Default filters -->
+                        <mdc:filterItems>
+                            <!-- OHR ID Filter with Value Help -->
+                            <mdc:FilterField
+                                id="filterEmployeeBenchOHRId"
+                                label="OHR ID"
+                                width="200px"
+                                propertyKey="ohrId"
+                                display="Description"
+                                editMode="Editable"
+                                valueHelp="vhOHRId"
+                                maxConditions="-1"
+                                required="false"
+                                caseSensitive="false"
+                                conditions="{filterModel>/EmployeeBenchReport/conditions/ohrId}"
+                            >
+                                <mdc:dependents>
+                                    <mdc:ValueHelp
+                                        id="vhOHRId"
+                                        delegate="{
+                                            name: 'glassboard/delegate/SearchValueHelpDelegate',
+                                            payload: { searchKeys: ['ohrId', 'employeeName', 'band'] }
+                                        }"
+                                    >
+
+ 
+                                        <!-- DIALOG -->
+                                        <mdc:dialog>
+                                            <mdcvh:Dialog id="dlgOHRIdVH" title="Select OHR ID">
+                                                <mdcvc:MDCTable keyPath="ohrId" descriptionPath="ohrId">
+                                                    <mdc:Table
+                                                        id="tblOHRIdVH"
+                                                        autoBindOnInit="true"
+                                                        width="100%"
+                                                        selectionMode="Multi"
+                                                        p13nMode="Column,Sort"
+                                                        enableAutoColumnWidth="true"
+                                                        threshold="20"
+                                                        delegate="{
+                                                            name: 'glassboard/delegate/EmployeeBenchReportTableDelegate',
+                                                            payload: {
+                                                                collectionPath: 'EmployeeBenchReport',
+                                                                searchKeys: ['ohrId', 'employeeName', 'band']
+                                                            }
+                                                        }"
+                                                    >
+                                                        <mdc:type>
+                                                            <table:GridTableType rowCountMode="Auto" />
+                                                        </mdc:type>
+                                                        <mdc:columns>
+                                                            <mdct:Column
+                                                                id="BenchVHcolOHRId"
+                                                                header="OHR ID"
+                                                                propertyKey="ohrId"
+                                                            >
+                                                                <Text text="{ohrId}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column
+                                                                id="BenchVHcolFullName"
+                                                                header="Employee Name"
+                                                                propertyKey="employeeName"
+                                                            >
+                                                                <Text text="{employeeName}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column
+                                                                id="BenchVHcolBand"
+                                                                header="Band"
+                                                                propertyKey="band"
+                                                            >
+                                                                <Text text="{band}" />
+                                                            </mdct:Column>
+                                                        </mdc:columns>
+                                                    </mdc:Table>
+                                                </mdcvc:MDCTable>
+                                            </mdcvh:Dialog>
+                                        </mdc:dialog>
+                                    </mdc:ValueHelp>
+                                </mdc:dependents>
+                            </mdc:FilterField>
+ 
+                            <!-- Band Filter with Value Help -->
+                            <mdc:FilterField
+                                id="filterEmployeeBenchBand"
+                                label="Band"
+                                width="200px"
+                                propertyKey="band"
+                                maxConditions="-1"
+                                conditions="{filterModel>/EmployeeBenchReport/conditions/band}"
+                                valueHelp="vhBand"
+                            >
+                                <mdc:dependents>
+                                    <mdc:ValueHelp
+                                        id="vhBand"
+                                        delegate="{
+                                            name: 'glassboard/delegate/SearchValueHelpDelegate',
+                                            payload: { searchKeys: ['band', 'ohrId', 'skills'] }
+                                        }"
+                                    >
+                                        <mdc:dialog>
+                                            <mdcvh:Dialog id="dlgBandVH" title="Select Band">
+                                                <mdcvc:MDCTable keyPath="band" descriptionPath="band">
+                                                    <mdc:Table
+                                                        id="tblBandVH"
+                                                        autoBindOnInit="true"
+                                                        selectionMode="Multi"
+                                                        p13nMode="Column,Sort"
+                                                        enableAutoColumnWidth="true"
+                                                        threshold="20"
+                                                        width="100%"
+                                                        delegate="{
+                                                            name: 'glassboard/delegate/EmployeeBenchReportTableDelegate',
+                                                            payload: { collectionPath: 'EmployeeBenchReport', searchKeys: ['band', 'ohrId', 'skills'] }
+                                                        }"
+                                                    >
+                                                        <mdc:type>
+                                                            <table:GridTableType rowCountMode="Auto" />
+                                                        </mdc:type>
+                                                        <mdc:columns>
+                                                            <mdct:Column header="Band" propertyKey="band">
+                                                                <Text text="{band}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                                                <Text text="{ohrId}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column header="Skills" propertyKey="skills">
+                                                                <Text text="{skills}" />
+                                                            </mdct:Column>
+                                                        </mdc:columns>
+                                                    </mdc:Table>
+                                                </mdcvc:MDCTable>
+                                            </mdcvh:Dialog>
+                                        </mdc:dialog>
+                                    </mdc:ValueHelp>
+                                </mdc:dependents>
+                            </mdc:FilterField>
+ 
+                            <!-- Skills Filter with Value Help -->
+                            <mdc:FilterField
+                                id="filterEmployeeBenchSkills"
+                                label="Skills"
+                                width="250px"
+                                propertyKey="skills"
+                                maxConditions="-1"
+                                conditions="{filterModel>/EmployeeBenchReport/conditions/skills}"
+                                valueHelp="vhSkills"
+                            >
+                                <mdc:dependents>
+                                    <mdc:ValueHelp
+                                        id="vhSkills"
+                                        delegate="{
+                                            name: 'glassboard/delegate/SearchValueHelpDelegate',
+                                            payload: { searchKeys: ['skills', 'ohrId', 'band'] }
+                                        }"
+                                    >
+                                        <mdc:dialog>
+                                            <mdcvh:Dialog id="dlgSkillsVH" title="Select Skill">
+                                                <mdcvc:MDCTable keyPath="skills" descriptionPath="skills">
+                                                    <mdc:Table
+                                                        id="tblSkillsVH"
+                                                        autoBindOnInit="true"
+                                                        selectionMode="Multi"
+                                                        p13nMode="Column,Sort"
+                                                        enableAutoColumnWidth="true"
+                                                        threshold="20"
+                                                        width="100%"
+                                                        delegate="{
+                                                            name: 'glassboard/delegate/EmployeeBenchReportTableDelegate',
+                                                            payload: { collectionPath: 'EmployeeBenchReport', searchKeys: ['skills', 'ohrId', 'band'] }
+                                                        }"
+                                                    >
+                                                        <mdc:type>
+                                                            <table:GridTableType rowCountMode="Auto" />
+                                                        </mdc:type>
+                                                        <mdc:columns>
+                                                            <mdct:Column header="Skill" propertyKey="skills">
+                                                                <Text text="{skills}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column header="Band" propertyKey="band">
+                                                                <Text text="{band}" />
+                                                            </mdct:Column>
+                                                            <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                                                <Text text="{ohrId}" />
+                                                            </mdct:Column>
+                                                        </mdc:columns>
+                                                    </mdc:Table>
+                                                </mdcvc:MDCTable>
+                                            </mdcvh:Dialog>
+                                        </mdc:dialog>
+                                    </mdc:ValueHelp>
+                                </mdc:dependents>
+                            </mdc:FilterField>
+                        </mdc:filterItems>
+                    </mdc:FilterBar>
+                </VBox>
+            </layout:DynamicPageHeader>
+        </layout:header>
+       
+        <layout:content>
+            <VBox class="sapUiSmallMargin">
+                <Panel class="sapUiResponsiveMargin" expandable="false">
+                    <ScrollContainer height="600px" vertical="true" horizontal="false">
+                        <mdc:Table
+                            id="EmployeeBenchReportTable"
+                            header="Employee Bench Report"
+                            class="verticalsTable rowDetailToggleTable"
+                            autoBindOnInit="true"
+                            busyIndicatorDelay="0"
+                            width="100%"
+                            p13nMode="Column,Sort,Filter,Group"
+                            selectionMode="None"
+                            type="Table"                                             
+                            delegate='{
+                                "name": "glassboard/delegate/EmployeeBenchReportTableDelegate",
+                                "payload": {
+                                    "collectionPath": "EmployeeBenchReport"
+                                }
+                            }'
+                            showRowCount="true"
+                            threshold="20"
+                            enableExport="true"
+                            enableAutoColumnWidth="false"
+                            filter="employeeBenchReportFilterBar"
+                            filterConditions="{filterModel>/EmployeeBenchReport/conditions}">
+                           
+                           
+                            <mdc:actions>
+                                <SegmentedButton
+                                    selectedKey="less"
+                                    selectionChange="onToggleRowDetail"
+                                    tooltip="Toggle Row Details">
+                                    <items>
+                                        <SegmentedButtonItem key="more" icon="sap-icon://detail-more" tooltip="Show More"/>
+                                        <SegmentedButtonItem key="less" icon="sap-icon://detail-less" tooltip="Show Less"/>
+                                    </items>
+                                </SegmentedButton>
+                            </mdc:actions>
+                        </mdc:Table>
+                    </ScrollContainer>
+                </Panel>
+            </VBox>
+        </layout:content>
+    </layout:DynamicPage>
+</core:FragmentDefinition>
+ 
+ 
+ 

@@ -1,0 +1,312 @@
+<core:FragmentDefinition 
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:table="sap.ui.mdc.table"
+    xmlns:mdct="sap.ui.mdc.table"
+    xmlns:mdcvh="sap.ui.mdc.valuehelp"
+    xmlns:mdcvc="sap.ui.mdc.valuehelp.content"
+    xmlns:layout="sap.f">
+    <layout:DynamicPage
+        id="resDynamicPage"
+        fitContent="false"
+        preserveHeaderStateOnScroll="false"
+        headerExpanded="true"
+        toggleHeaderOnTitleClick="false">
+        
+        <!-- Optional Page Title -->
+        <layout:title>
+            <layout:DynamicPageTitle>
+                <layout:heading>
+                    <Title text="Employee Allocation Overview" level="H2" />
+                </layout:heading>
+            </layout:DynamicPageTitle>
+        </layout:title>
+        
+        <!-- ========== FILTERBAR ========== -->
+        <layout:header>
+            <layout:DynamicPageHeader pinnable="false">
+                <VBox class="sapUiTinyMargin">
+                    <mdc:FilterBar
+                        id="resFilterBar"
+                        delegate='{
+                            "name": "glassboard/delegate/EmployeesFilterBarDelegate",
+                            "payload": {
+                                "collectionPath": "Employees"
+                            }
+                        }'
+                        search="onFilterSearch"
+                        showAdaptFiltersButton="true"
+                        showGoButton="true"
+                        filterConditions="{filterModel>/Resources/conditions}"
+                        p13nMode="Item,Value">
+                        <!-- Static filter items - Default filters -->
+                       <mdc:filterItems>
+
+    <!-- ============================
+         RESOURCES → OHR ID (NEW VH)
+    ============================ -->
+    <mdc:FilterField
+        id="filterResOHRId"
+        label="OHR ID"
+        width="200px"
+        propertyKey="ohrId"
+        maxConditions="-1"
+        conditions="{filterModel>/Resources/conditions/ohrId}"
+        valueHelp="vhResOHRId"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhResOHRId"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['ohrId','band','skills'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgResOHRId" title="Select OHR ID">
+                        <mdcvc:MDCTable keyPath="ohrId" descriptionPath="ohrId">
+                            <mdc:Table
+                                id="tblResOHRIdVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="resFilterBar"
+                                filterConditions="{filterModel>/Resources/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ResourcesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['ohrId','band'] }
+                                }"
+                            > <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                             </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         RESOURCES → BAND (NEW VH)
+    ============================ -->
+    <mdc:FilterField
+        id="filterResBand"
+        label="Band"
+        width="200px"
+        propertyKey="band"
+        maxConditions="-1"
+        conditions="{filterModel>/Resources/conditions/band}"
+        valueHelp="vhResBand"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhResBand"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['band','ohrId','skills'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgResBand" title="Select Band">
+                        <mdcvc:MDCTable keyPath="band" descriptionPath="band">
+                            <mdc:Table
+                                id="tblResBandVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="resFilterBar"
+                                filterConditions="{filterModel>/Resources/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ResourcesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['band','ohrId'] }
+                                }"
+                            > <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+
+
+    <!-- ============================
+         RESOURCES → SKILLS (NEW VH)
+    ============================ -->
+    <mdc:FilterField
+        id="filterResSkills"
+        label="Skills"
+        width="250px"
+        propertyKey="skills"
+        maxConditions="-1"
+        conditions="{filterModel>/Resources/conditions/skills}"
+        valueHelp="vhResSkills"
+    >
+        <mdc:dependents>
+            <mdc:ValueHelp
+                id="vhResSkills"
+                delegate="{
+                    name: 'glassboard/delegate/SearchValueHelpDelegate',
+                    payload: { searchKeys: ['skills','ohrId','band'] }
+                }"
+            >
+                <mdc:dialog>
+                    <mdcvh:Dialog id="dlgResSkills" title="Select Skill">
+                        <mdcvc:MDCTable keyPath="skills" descriptionPath="skills">
+                            <mdc:Table
+                                id="tblResSkillsVH"
+                                autoBindOnInit="true"
+                                selectionMode="Multi"
+                                p13nMode="Column,Sort"
+                                enableAutoColumnWidth="true"
+                                threshold="20"
+                                filter="resFilterBar"
+                                filterConditions="{filterModel>/Resources/conditions}"
+                                width="100%"
+                                delegate="{
+                                    name: 'glassboard/delegate/ResourcesTableDelegate',
+                                    payload: { collectionPath: 'Employees', searchKeys: ['skills','ohrId','band'] }
+                                }"
+                            > <mdc:type>
+                                <table:GridTableType rowCountMode="Auto" />
+                            </mdc:type>
+                                <mdc:columns>
+                                    <mdct:Column header="Skill" propertyKey="skills">
+                                        <Text text="{skills}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="Band" propertyKey="band">
+                                        <Text text="{band}" />
+                                    </mdct:Column>
+                                    <mdct:Column header="OHR ID" propertyKey="ohrId">
+                                        <Text text="{ohrId}" />
+                                    </mdct:Column>
+                                </mdc:columns>
+                            </mdc:Table>
+                        </mdcvc:MDCTable>
+                    </mdcvh:Dialog>
+                </mdc:dialog>
+            </mdc:ValueHelp>
+        </mdc:dependents>
+    </mdc:FilterField>
+
+</mdc:filterItems>
+
+                    </mdc:FilterBar>
+                </VBox>
+            </layout:DynamicPageHeader>
+        </layout:header>
+        
+        <!-- ========== MAIN CONTENT ========== -->
+        <layout:content>
+    <VBox class="sapUiSmallMargin">
+        <!-- Panel for Table -->
+        <Panel class="sapUiResponsiveMargin" expandable="false">
+            <Toolbar>
+                <Select
+                    id="resViewSelect"
+                    selectedKey="employees"                    
+                    change="onAllocationViewChange">
+                    <core:Item key="employees" text="Employees" />
+                    <core:Item key="projects" text="Projects" />
+                </Select>
+                <ToolbarSpacer />
+                 <SearchField
+                    id="ResSearchField"
+                    width="300px"
+                    placeholder="Search employees..."
+                    liveChange="onResSearchField"
+                    search="onResSearchField" />
+            </Toolbar>
+            <ScrollContainer height="220px" vertical="true" horizontal="false">
+                <mdc:Table
+                    id="Res"
+                    header="Employees"
+                    class="verticalsTable rowDetailToggleTable"
+                    autoBindOnInit="false"
+                    busyIndicatorDelay="0"
+                    width="100%"
+                    p13nMode="Column,Sort,Filter,Group"
+                    selectionMode="Multi"
+                    delegate='{
+                        "name": "glassboard/delegate/AllocationsEmployeesTableDelegate",
+                        "payload": {
+                            "collectionPath": "Employees"
+                        }
+                    }'
+                    showRowCount="true"
+                    threshold="20"
+                    enableExport="true"
+                    enableAutoColumnWidth="false"
+                            filter="resFilterBar"
+                            filterConditions="{filterModel>/Resources/conditions}"
+                    selectionChange="onSelectionChange">
+                    
+                    <mdc:type>
+                        <mdct:ResponsiveTableType />
+                    </mdc:type>
+
+                    <mdc:actions>
+                        <SegmentedButton 
+                            selectedKey="less"
+                            selectionChange="onToggleRowDetail"
+                            tooltip="Toggle Row Details">
+                            <items>
+                                <SegmentedButtonItem key="more" icon="sap-icon://detail-more" tooltip="Show More"/>
+                                <SegmentedButtonItem key="less" icon="sap-icon://detail-less" tooltip="Show Less"/>
+                            </items>
+                        </SegmentedButton>
+                        <Button icon="sap-icon://delete" id="Delete_res1" tooltip="Delete" press="onDeletePress" enabled="false" />
+                        <Button text="Allocate" id="btnResAllocate" press="onAllocateRes" enabled="false"/>
+                        <SplitButton
+                            id="employeeUpload2"
+                            icon="sap-icon://upload"
+                            tooltip="Upload"
+                            type="Transparent"
+                            press="onUpload"
+                            arrowPress="onSplitButtonArrowPress"
+                        />
+                    </mdc:actions>
+                </mdc:Table>
+            </ScrollContainer>
+        </Panel>
+        <HBox width="100%" class="extraSpace"><ToolbarSpacer /></HBox>
+        <!-- Panel for Form -->
+        <Panel headerText="Employee Allocation Details" class="sapUiResponsiveMargin" expandable="false">
+           <VBox id="selectedEmployeeVBox" class="sapUiSmallMargin">
+                        <Text text="" />
+            </VBox>
+        </Panel>
+    </VBox>
+        </layout:content>
+    </layout:DynamicPage>
+</core:FragmentDefinition>
