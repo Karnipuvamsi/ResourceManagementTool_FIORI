@@ -32,7 +32,7 @@ sap.ui.define([
             this.byId("yetToJoinVBox").attachBrowserEvent("click", this.onYetToJoinPress.bind(this));
             this.byId("projectsEndingVBox").attachBrowserEvent("click", this.onProjectsEndingPress.bind(this));
 
-            // ✅ Set the filter model with isolated conditions per fragment
+            //  Set the filter model with isolated conditions per fragment
             const oFilterModel = new sap.ui.model.json.JSONModel({
                 Customers: { conditions: {}, items: [] },
                 Projects: { conditions: {}, items: [] },
@@ -50,20 +50,20 @@ sap.ui.define([
             });
             this.getView().setModel(oFilterModel, "filterModel");
 
-            // ✅ Also set $filters model for MDC FilterBar (points to same model but different structure)
+            //  Also set $filters model for MDC FilterBar (points to same model but different structure)
             const oFiltersModel = new sap.ui.model.json.JSONModel({
                 conditions: {}
             });
             this.getView().setModel(oFiltersModel, "$filters");
 
-            // ✅ Set default filters for each entity
+            //  Set default filters for each entity
             this._setDefaultFilters();
 
             // Optional: Set a separate model for table-specific state (if needed)
             const oTableModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(oTableModel, "tableModel");
 
-            // ✅ Initialize Country-City mapping for dependent dropdowns
+            //  Initialize Country-City mapping for dependent dropdowns
             this._mCountryToCities = {
                 "South Africa": ["Johannesburg (Gauteng)"],
                 "China": ["Dalian", "Foshan (Guangdong)", "Kunshan (Jiangsu)"],
@@ -100,7 +100,7 @@ sap.ui.define([
                 "Belgium": []
             };
 
-            // ✅ Initialize Band-Designation mapping for dependent dropdowns
+            //  Initialize Band-Designation mapping for dependent dropdowns
             this.mBandToDesignations = {
                 "1": ["Senior Vice President"],
                 "2": ["Vice President"],
@@ -115,10 +115,10 @@ sap.ui.define([
                 "Subcon": ["Subcon"]
             };
 
-            // ✅ Populate Country dropdown in Customers fragment when loaded
+            //  Populate Country dropdown in Customers fragment when loaded
             this._populateCountryDropdown();
 
-            // ✅ Initialize home counts model
+            //  Initialize home counts model
             const oHomeCountsModel = new sap.ui.model.json.JSONModel({
                 totalHeadCount: 0,
                 allocatedCount: 0,
@@ -126,13 +126,14 @@ sap.ui.define([
                 unproductiveBenchCount: 0,
                 onLeaveCount: 0,
                 benchCount: 0,
-                demandCount: 0
+                demandCount: 0,
+                projectsCount: 0,
             });
             this.getView().setModel(oHomeCountsModel, "homeCounts");
         },
 
         onAfterRendering: function () {
-            // ✅ Load all home screen counts after view is rendered
+            //  Load all home screen counts after view is rendered
             // Wait a bit to ensure OData model is fully initialized
             let nRetries = 0;
             const nMaxRetries = 10;
@@ -192,7 +193,7 @@ sap.ui.define([
                 demands: "demandsPage",
                 sapid: "sapidPage",
                 employees: "employeesPage",
-                // ✅ REMOVED: verticals: "verticalsPage", (Vertical is now an enum, not an entity)
+                //  REMOVED: verticals: "verticalsPage", (Vertical is now an enum, not an entity)
                 overview: "allocationPage",
                 requirements: "requirementsPage",
                 employeeBenchReport: "employeeBenchReportPage",
@@ -209,7 +210,7 @@ sap.ui.define([
             if (!sPageId) {
                 return;
             }
-            // ✅ FIXED: Check for unsaved changes before navigating
+            //  FIXED: Check for unsaved changes before navigating
             this._clearPreviousTableEditState(sKey).then((bAllowNavigation) => {
                 if (!bAllowNavigation) {
                     // User chose "Stay" - don't navigate
@@ -225,11 +226,11 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Extract fragment loading logic
+        //  NEW: Extract fragment loading logic
         _loadFragmentIfNeeded: function (sKey, sPageId) {
             var oLogButton = this.byId("uploadLogButton");
 
-            // ✅ CRITICAL: Clear property cache for this collection to force fresh property fetch
+            //  CRITICAL: Clear property cache for this collection to force fresh property fetch
             // This prevents the "0/0 columns" issue in View Settings dialog
             const sCollectionMap = {
                 "customers": "Customers",
@@ -255,7 +256,7 @@ sap.ui.define([
             if (sKey === "customers") {
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bCustomersLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("Customers");
                     if (oTable) {
                         this.initializeTable("Customers").catch(() => {
@@ -268,7 +269,7 @@ sap.ui.define([
                 this._bCustomersLoaded = true;
                 const oCustomersPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oCustomersPage && oCustomersPage.getContent) {
                     const aExistingContent = oCustomersPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -303,10 +304,10 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Populate Country dropdown when Customers fragment loads
+                    //  Populate Country dropdown when Customers fragment loads
                     this._populateCountryDropdown();
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oFilterBar = this.byId("customerFilterBar");
                     if (oFilterBar) {
                         oFilterBar.setModel(oModel, "default");
@@ -318,7 +319,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oFilterBar, ["customerName", "vertical"]);
                         }, 1000);
@@ -329,7 +330,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("Customers").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oFilterBar) {
@@ -345,7 +346,7 @@ sap.ui.define([
                     // Reset segmented button to "less" state for this fragment
                     this._resetSegmentedButtonForFragment("Customers");
 
-                    // ✅ Initialize Customer ID field with next ID preview (for create mode)
+                    //  Initialize Customer ID field with next ID preview (for create mode)
                     // Wait for table to be fully initialized and data loaded
                     setTimeout(() => {
                         // Wait for table binding to be ready
@@ -372,7 +373,7 @@ sap.ui.define([
             } else if (sKey === "opportunities") {
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bOpportunitiesLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("Opportunities");
                     if (oTable) {
                         this.initializeTable("Opportunities").catch(() => {
@@ -385,7 +386,7 @@ sap.ui.define([
                 this._bOpportunitiesLoaded = true;
                 const oOpportunitiesPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oOpportunitiesPage && oOpportunitiesPage.getContent) {
                     const aExistingContent = oOpportunitiesPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -419,7 +420,7 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Set default filters for Opportunities FilterBar
+                    //  Set default filters for Opportunities FilterBar
                     const oOpportunityFilterBar = this.byId("opportunityFilterBar");
                     if (oOpportunityFilterBar) {
                         oOpportunityFilterBar.setModel(oModel, "default");
@@ -431,7 +432,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oOpportunityFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries - 4 important filters: sapOpportunityId, sfdcOpportunityId, businessUnit, Stage
+                        //  Set defaults with multiple retries - 4 important filters: sapOpportunityId, sfdcOpportunityId, businessUnit, Stage
                         setTimeout(() => {
                             this._setDefaultFilterFields(oOpportunityFilterBar, ["sapOpportunityId", "sfdcOpportunityId", "businessUnit", "Stage"]);
                         }, 1000);
@@ -445,7 +446,7 @@ sap.ui.define([
                     // Reset segmented button to "less" state for this fragment
                     this._resetSegmentedButtonForFragment("Opportunities");
 
-                    // ✅ Initialize Opportunity ID field and form
+                    //  Initialize Opportunity ID field and form
                     setTimeout(() => {
                         oTable.initialized().then(() => {
                             setTimeout(() => {
@@ -466,7 +467,7 @@ sap.ui.define([
 
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bProjectsLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("Projects");
                     if (oTable) {
                         this.initializeTable("Projects").catch(() => {
@@ -479,7 +480,7 @@ sap.ui.define([
                 this._bProjectsLoaded = true;
                 const oProjectsPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Check if content already exists and remove it to prevent duplicate IDs
+                //  CRITICAL: Check if content already exists and remove it to prevent duplicate IDs
                 if (oProjectsPage && oProjectsPage.getContent) {
                     const aExistingContent = oProjectsPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -516,7 +517,7 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Set default filters for Projects FilterBar
+                    //  Set default filters for Projects FilterBar
                     const oProjectFilterBar = this.byId("projectFilterBar");
                     if (oProjectFilterBar) {
                         oProjectFilterBar.setModel(oModel, "default");
@@ -528,7 +529,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oProjectFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries - 4 important filters: sapPId, sfdcPId, projectType, SOWReceived
+                        //  Set defaults with multiple retries - 4 important filters: sapPId, sfdcPId, projectType, SOWReceived
                         setTimeout(() => {
                             this._setDefaultFilterFields(oProjectFilterBar, ["sapPId", "sfdcPId", "projectType", "SOWReceived"]);
                         }, 1000);
@@ -542,7 +543,7 @@ sap.ui.define([
                     // Reset segmented button to "less" state for this fragment
                     this._resetSegmentedButtonForFragment("Projects");
 
-                    // ✅ Initialize Project ID field and form
+                    //  Initialize Project ID field and form
                     setTimeout(() => {
                         oTable.initialized().then(() => {
                             setTimeout(() => {
@@ -596,7 +597,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeBenchReport", "EmployeeBenchReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bEmployeeBenchReportTableLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("EmployeeBenchReportTable");
                     if (oTable) {
                         this.initializeTable("EmployeeBenchReportTable").catch(() => {
@@ -609,7 +610,7 @@ sap.ui.define([
                 this._bEmployeeBenchReportTableLoaded = true;
                 const oEmployeeBenchReportTablePage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oEmployeeBenchReportTablePage && oEmployeeBenchReportTablePage.getContent) {
                     const aExistingContent = oEmployeeBenchReportTablePage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -645,7 +646,7 @@ sap.ui.define([
                     }
 
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oEmployeeBenchReportTableFilterBar = this.byId("employeeBenchReportFilterBar");
                     if (oEmployeeBenchReportTableFilterBar) {
                         oEmployeeBenchReportTableFilterBar.setModel(oModel, "default");
@@ -657,7 +658,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oEmployeeBenchReportTableFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oEmployeeBenchReportTableFilterBar, ["ohrId", "band", "skills"]);
                         }, 1000);
@@ -668,7 +669,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("EmployeeBenchReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oEmployeeBenchReportTableFilterBar) {
@@ -691,7 +692,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeBenchReport", "EmployeeBenchReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bEmployeeProbableReleaseReportTableLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("EmployeeProbableReleaseReportTable");
                     if (oTable) {
                         this.initializeTable("EmployeeProbableReleaseReportTable").catch(() => {
@@ -704,7 +705,7 @@ sap.ui.define([
                 this._bEmployeeProbableReleaseReportTableLoaded = true;
                 const oEmployeeProbableReleaseReportPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oEmployeeProbableReleaseReportPage && oEmployeeProbableReleaseReportPage.getContent) {
                     const aExistingContent = oEmployeeProbableReleaseReportPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -740,7 +741,7 @@ sap.ui.define([
                     }
 
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oEmployeeProbableReleaseReportFilterBar = this.byId("employeeProbableReleaseReportFilterBar");
                     if (oEmployeeProbableReleaseReportFilterBar) {
                         oEmployeeProbableReleaseReportFilterBar.setModel(oModel, "default");
@@ -752,7 +753,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oEmployeeProbableReleaseReportFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oEmployeeProbableReleaseReportFilterBar, ["ohrId", "band", "skills"]);
                         }, 1000);
@@ -763,7 +764,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("EmployeeProbableReleaseReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oEmployeeProbableReleaseReportFilterBar) {
@@ -788,7 +789,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeBenchReport", "EmployeeBenchReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._projectsNearingCompletionReport) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("ProjectsNearingCompletionReportTable");
                     if (oTable) {
                         this.initializeTable("ProjectsNearingCompletionReportTable").catch(() => {
@@ -801,7 +802,7 @@ sap.ui.define([
                 this._projectsNearingCompletionReport = true;
                 const oProjectsNearingCompletionReportPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oProjectsNearingCompletionReportPage && oProjectsNearingCompletionReportPage.getContent) {
                     const aExistingContent = oProjectsNearingCompletionReportPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -837,7 +838,7 @@ sap.ui.define([
                     }
 
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oProjectsNearingCompletionReportFilterBar = this.byId("employeeProbableReleaseReportFilterBar");
                     if (oProjectsNearingCompletionReportFilterBar) {
                         oProjectsNearingCompletionReportFilterBar.setModel(oModel, "default");
@@ -849,7 +850,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oProjectsNearingCompletionReportFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oProjectsNearingCompletionReportFilterBar, ["ohrId", "band", "skills"]);
                         }, 1000);
@@ -860,7 +861,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("ProjectsNearingCompletionReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oProjectsNearingCompletionReportFilterBar) {
@@ -885,7 +886,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeBenchReport", "EmployeeBenchReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._revenueForecastReport) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("RevenueForecastReportTable");
                     if (oTable) {
                         this.initializeTable("RevenueForecastReportTable").catch(() => {
@@ -898,7 +899,7 @@ sap.ui.define([
                 this._revenueForecastReport = true;
                 const oRevenueForecastReportPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oRevenueForecastReportPage && oRevenueForecastReportPage.getContent) {
                     const aExistingContent = oRevenueForecastReportPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -934,7 +935,7 @@ sap.ui.define([
                     }
 
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oRevenueForecastReportFilterBar = this.byId("revenueForecastReportFilterBar");
                     if (oRevenueForecastReportFilterBar) {
                         oRevenueForecastReportFilterBar.setModel(oModel, "default");
@@ -946,7 +947,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oRevenueForecastReportFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oRevenueForecastReportFilterBar, ["ohrId", "band", "skills"]);
                         }, 1000);
@@ -957,7 +958,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("RevenueForecastReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oRevenueForecastReportFilterBar) {
@@ -980,7 +981,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeAllocationReport", "EmployeeAllocationReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bEmployeeAllocationReportLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("EmployeeAllocationReportTable");
                     if (oTable) {
                         this.initializeTable("EmployeeAllocationReportTable").catch(() => {
@@ -993,7 +994,7 @@ sap.ui.define([
                 this._bEmployeeAllocationReportLoaded = true;
                 const oEmployeeAllocationReportPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oEmployeeAllocationReportPage && oEmployeeAllocationReportPage.getContent) {
                     const aExistingContent = oEmployeeAllocationReportPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -1028,10 +1029,10 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Populate Country dropdown when Customers fragment loads
+                    //  Populate Country dropdown when Customers fragment loads
                     this._populateCountryDropdown();
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oEmployeeAllocationReportFilterBar = this.byId("employeeAllocationReportFilterBar");
                     if (oEmployeeAllocationReportFilterBar) {
                         oEmployeeAllocationReportFilterBar.setModel(oModel, "default");
@@ -1043,7 +1044,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oEmployeeAllocationReportFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oEmployeeAllocationReportFilterBar, ["employeeName", "currentProject", "customer"]);
                         }, 1000);
@@ -1054,7 +1055,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("EmployeeAllocationReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oEmployeeAllocationReportFilterBar) {
@@ -1075,7 +1076,7 @@ sap.ui.define([
                 // this._loadReportFragment(sPageId, "EmployeeSkillReport", "EmployeeSkillReport", oLogButton);
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bEmployeeSkillReportTableLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("EmployeeSkillReportTable");
                     if (oTable) {
                         this.initializeTable("EmployeeSkillReportTable").catch(() => {
@@ -1088,7 +1089,7 @@ sap.ui.define([
                 this._bEmployeeSkillReportTableLoaded = true;
                 const oEmployeeSkillReportPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oEmployeeSkillReportPage && oEmployeeSkillReportPage.getContent) {
                     const aExistingContent = oEmployeeSkillReportPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -1123,10 +1124,10 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Populate Country dropdown when Customers fragment loads
+                    //  Populate Country dropdown when Customers fragment loads
                     this._populateCountryDropdown();
 
-                    // ✅ Set default filters for Customers FilterBar
+                    //  Set default filters for Customers FilterBar
                     const oEmployeeSkillReportFilterBar = this.byId("employeeSkillReportFilterBar");
                     if (oEmployeeSkillReportFilterBar) {
                         oEmployeeSkillReportFilterBar.setModel(oModel, "default");
@@ -1138,7 +1139,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oEmployeeSkillReportFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oEmployeeSkillReportFilterBar, ["skillName", "category"]);
                         }, 1000);
@@ -1149,7 +1150,7 @@ sap.ui.define([
 
                     // Initialize table-specific functionality
                     this.initializeTable("EmployeeSkillReportTable").then(() => {
-                        // ✅ Trigger initial data load by firing FilterBar search event
+                        //  Trigger initial data load by firing FilterBar search event
                         // This ensures table binds even when there are no filter conditions
                         setTimeout(() => {
                             if (oEmployeeSkillReportFilterBar) {
@@ -1169,7 +1170,7 @@ sap.ui.define([
             } else if (sKey === "employees") {
                 // Check if already loaded to prevent duplicate IDs
                 if (this._bEmployeesLoaded) {
-                    // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                    //  Even if already loaded, re-initialize table to refresh p13n state
                     const oTable = this.byId("Employees");
                     if (oTable) {
                         this.initializeTable("Employees").catch(() => {
@@ -1182,7 +1183,7 @@ sap.ui.define([
                 this._bEmployeesLoaded = true;
                 const oEmployeesPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oEmployeesPage && oEmployeesPage.getContent) {
                     const aExistingContent = oEmployeesPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -1216,7 +1217,7 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Set default filters for Employees FilterBar
+                    //  Set default filters for Employees FilterBar
                     const oEmployeeFilterBar = this.byId("employeeFilterBar");
                     if (oEmployeeFilterBar) {
                         oEmployeeFilterBar.setModel(oModel, "default");
@@ -1228,7 +1229,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oEmployeeFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oEmployeeFilterBar, ["ohrId", "band", "skills"]);
                         }, 1000);
@@ -1242,7 +1243,7 @@ sap.ui.define([
                     // Reset segmented button to "less" state for this fragment
                     this._resetSegmentedButtonForFragment("Employees");
 
-                    // ✅ Populate Country dropdown when Employees fragment loads
+                    //  Populate Country dropdown when Employees fragment loads
                     // Use multiple timeouts to ensure fragment is fully rendered
                     setTimeout(() => {
                         this._populateCountryDropdown();
@@ -1254,7 +1255,7 @@ sap.ui.define([
                         this._populateCountryDropdown();
                     }, 2000);
 
-                    // ✅ Initialize Employee form (no ID preview needed - manual OHR ID entry)
+                    //  Initialize Employee form (no ID preview needed - manual OHR ID entry)
                     setTimeout(() => {
                         oTable.initialized().then(() => {
                             setTimeout(() => {
@@ -1280,7 +1281,7 @@ sap.ui.define([
                 // this._bAllocationsLoaded = true;
                 // const oAllocationPage = this.getView().byId(sPageId);
 
-                // // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                // //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 // if (oAllocationPage && oAllocationPage.getContent) {
                 //     const aExistingContent = oAllocationPage.getContent();
                 //     if (aExistingContent && aExistingContent.length > 0) {
@@ -1293,7 +1294,7 @@ sap.ui.define([
                 //     }
                 // }
 
-                // // ✅ DEFAULT: Load Employees view (Res fragment) first instead of Projects
+                // //  DEFAULT: Load Employees view (Res fragment) first instead of Projects
                 // Fragment.load({
                 //     id: this.getView().getId(),
                 //     name: "glassboard.view.fragments.Res",
@@ -1315,7 +1316,7 @@ sap.ui.define([
                 //         oTable.setModel(oModel);
                 //     }
 
-                //     // ✅ Set default filters for Res FilterBar (Employees view in Allocations)
+                //     //  Set default filters for Res FilterBar (Employees view in Allocations)
                 //     const oResFilterBar = this.byId("resFilterBar");
                 //     if (oResFilterBar) {
                 //         oResFilterBar.setModel(oModel, "default");
@@ -1327,7 +1328,7 @@ sap.ui.define([
                 //         if (oFiltersModel) {
                 //             oResFilterBar.setModel(oFiltersModel, "$filters");
                 //         }
-                //         // ✅ Set defaults with multiple retries
+                //         //  Set defaults with multiple retries
                 //         setTimeout(() => {
                 //             this._setDefaultFilterFields(oResFilterBar, ["ohrId", "band", "skills"]);
                 //         }, 1000);
@@ -1338,7 +1339,7 @@ sap.ui.define([
 
                 //     // Initialize table-specific functionality
                 //     this.initializeTable("Res").then(() => {
-                //         // ✅ NEW: Apply allocation filter to Res table after initialization (empallocpercentage < 95 and status != "Resigned")
+                //         //  NEW: Apply allocation filter to Res table after initialization (empallocpercentage < 95 and status != "Resigned")
                 //         // Use multiple retries to ensure binding is ready
                 //         const fnApplyAllocationFilter = () => {
                 //             const oResBinding = oTable.getRowBinding && oTable.getRowBinding();
@@ -1346,7 +1347,7 @@ sap.ui.define([
                 //                 const oAllocationFilter = this._getAllocationFilter();
                 //                 oResBinding.filter([oAllocationFilter]);
 
-                //                 // ✅ CRITICAL: Re-apply filter on dataReceived to ensure it persists
+                //                 //  CRITICAL: Re-apply filter on dataReceived to ensure it persists
                 //                 oResBinding.attachDataReceived(() => {
                 //                     const oCurrentFilters = oResBinding.getFilters();
                 //                     // Check if allocation filter is already applied
@@ -1401,7 +1402,7 @@ sap.ui.define([
                     controller: this
                 }).then(function (oFragment) {
 
-                    // ✅ Add model setting here
+                    //  Add model setting here
                     const oVM = new sap.ui.model.json.JSONModel({
                         projAllowed: false,
                         empAllowed: false,
@@ -1429,7 +1430,7 @@ sap.ui.define([
                 this._bMasterDemandsLoaded = true;
                 const oMasterDemandsPage = this.getView().byId(sPageId);
 
-                // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+                //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
                 if (oMasterDemandsPage && oMasterDemandsPage.getContent) {
                     const aExistingContent = oMasterDemandsPage.getContent();
                     if (aExistingContent && aExistingContent.length > 0) {
@@ -1464,7 +1465,7 @@ sap.ui.define([
                         oTable.setModel(oModel);
                     }
 
-                    // ✅ Set default filters for Opportunities FilterBar
+                    //  Set default filters for Opportunities FilterBar
                     const oMasterDemandsFilterBar = this.byId("masterDemandsFilterBar");
                     if (oMasterDemandsFilterBar) {
                         oMasterDemandsFilterBar.setModel(oModel, "default");
@@ -1476,7 +1477,7 @@ sap.ui.define([
                         if (oFiltersModel) {
                             oMasterDemandsFilterBar.setModel(oFiltersModel, "$filters");
                         }
-                        // ✅ Set defaults with multiple retries
+                        //  Set defaults with multiple retries
                         setTimeout(() => {
                             this._setDefaultFilterFields(oMasterDemandsFilterBar, ["SapPId"]);
                         }, 1000);
@@ -1490,7 +1491,7 @@ sap.ui.define([
                     // Reset segmented button to "less" state for this fragment
                     this._resetSegmentedButtonForFragment("MasterDemands");
 
-                    // ✅ Initialize Opportunity ID field and form
+                    //  Initialize Opportunity ID field and form
                     setTimeout(() => {
                         oTable.initialized().then(() => {
                             setTimeout(() => {
@@ -1511,7 +1512,7 @@ sap.ui.define([
 
 
             }
-            // ✅ REMOVED: Verticals fragment loading (Vertical is now an enum, not an entity)
+            //  REMOVED: Verticals fragment loading (Vertical is now an enum, not an entity)
         },
         // Reset all tables to "show-less" state
         _resetAllTablesToShowLess: function () {
@@ -1548,7 +1549,7 @@ sap.ui.define([
             });
         },
         // Reset segmented button for a specific fragment
-        // ✅ NEW: Helper function to load report fragments
+        //  NEW: Helper function to load report fragments
         // _loadReportFragment: function (sPageId, sFragmentName, sTableId, oLogButton) {
         //     const sFlagName = "_b" + sFragmentName + "Loaded";
 
@@ -1560,7 +1561,7 @@ sap.ui.define([
         //     this[sFlagName] = true;
         //     const oReportPage = this.getView().byId(sPageId);
 
-        //     // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+        //     //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
         //     if (oReportPage && oReportPage.getContent) {
         //         const aExistingContent = oReportPage.getContent();
         //         if (aExistingContent && aExistingContent.length > 0) {
@@ -1678,7 +1679,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Handle navigation with unsaved changes - Show confirmation dialog
+        //  NEW: Handle navigation with unsaved changes - Show confirmation dialog
         _clearPreviousTableEditState: function (sNewPageKey) {
             const oEditModel = this.getView().getModel("edit");
             if (!oEditModel) {
@@ -1691,7 +1692,7 @@ sap.ui.define([
                 opportunities: "Opportunities",
                 projects: "Projects",
                 employees: "Employees",
-                // ✅ REMOVED: verticals: "Verticals", (Vertical is now an enum)
+                //  REMOVED: verticals: "Verticals", (Vertical is now an enum)
                 sapid: "SAPIdStatuses"
             };
 
@@ -1714,9 +1715,9 @@ sap.ui.define([
                 return Promise.resolve(true); // No unsaved changes, allow navigation
             }
 
-            // ✅ Show confirmation dialog with Save, Cancel, and Stay options
+            //  Show confirmation dialog with Save, Cancel, and Stay options
             return new Promise((resolve) => {
-                // ✅ FIXED: Use custom action strings to ensure button text displays correctly
+                //  FIXED: Use custom action strings to ensure button text displays correctly
                 const SAVE_ACTION = "Save";
                 const CANCEL_ACTION = "Cancel";
                 const STAY_ACTION = "Stay";
@@ -1750,7 +1751,7 @@ sap.ui.define([
                                 });
                             } else if (sAction === CANCEL_ACTION) {
                                 // Discard changes and navigate
-                                // ✅ FIXED: Call the actual cancel logic from CustomUtility to properly cancel OData changes
+                                //  FIXED: Call the actual cancel logic from CustomUtility to properly cancel OData changes
                                 this._cancelCurrentTableChanges(sCurrentTable).then(() => {
                                     this._discardTableEditState(sCurrentTable);
                                     resolve(true); // Allow navigation after discard
@@ -1766,7 +1767,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Save changes for a specific table
+        //  NEW: Save changes for a specific table
         _saveCurrentTableChanges: async function (sTableId) {
             // Reuse the save logic from CustomUtility
             const buttonMap = {
@@ -1775,7 +1776,7 @@ sap.ui.define([
                 "Opportunities": { save: "saveButton_oppr" },
                 "Projects": { save: "saveButton_proj" },
                 "SAPIdStatuses": { save: "saveButton_sap" }
-                // ✅ REMOVED: "Verticals": { save: "saveButton_vert" }
+                //  REMOVED: "Verticals": { save: "saveButton_vert" }
             };
 
             // Create a mock event object to trigger save
@@ -1792,7 +1793,7 @@ sap.ui.define([
             await CustomUtility.prototype.onSaveButtonPress.call(this, oMockEvent);
         },
 
-        // ✅ NEW: Cancel changes for a specific table (for navigation dialog)
+        //  NEW: Cancel changes for a specific table (for navigation dialog)
         // This bypasses the confirmation dialog since user already confirmed in navigation dialog
         _cancelCurrentTableChanges: function (sTableId) {
             // Call the internal cancel operation directly (without confirmation dialog)
@@ -1815,7 +1816,7 @@ sap.ui.define([
 
 
 
-        // ✅ NEW: Discard edit state for a specific table
+        //  NEW: Discard edit state for a specific table
         _discardTableEditState: function (sTableId) {
             const oEditModel = this.getView().getModel("edit");
             if (!oEditModel) return;
@@ -1831,7 +1832,7 @@ sap.ui.define([
             oEditModel.setProperty(`/${sTableId}/mode`, null);
             oEditModel.setProperty("/currentTable", null);
 
-            // ✅ FIX: Clear form models to prevent pre-loading when navigating back
+            //  FIX: Clear form models to prevent pre-loading when navigating back
             const aFormModels = ["customerModel", "employeeModel", "opportunityModel", "projectModel"];
             aFormModels.forEach((sModelName) => {
                 const oFormModel = this.getView().getModel(sModelName);
@@ -1848,7 +1849,7 @@ sap.ui.define([
                 "Opportunities": { save: "saveButton_oppr", cancel: "cancelButton_oppr", edit: "btnEdit_oppr", delete: "btnDelete_oppr", add: "btnAdd_oppr" },
                 "Projects": { save: "saveButton_proj", cancel: "cancelButton_proj", edit: "btnEdit_proj", delete: "btnDelete_proj", add: "btnAdd_proj" },
                 "SAPIdStatuses": { save: "saveButton_sap", cancel: "cancelButton_sap", edit: "btnEdit_sap", delete: "btnDelete_sap", add: "btnAdd_sap" }
-                // ✅ REMOVED: "Verticals": { save: "saveButton_vert", cancel: "cancelButton_vert", edit: "btnEdit_vert", delete: "btnDelete_vert", add: "btnAdd_vert" }
+                //  REMOVED: "Verticals": { save: "saveButton_vert", cancel: "cancelButton_vert", edit: "btnEdit_vert", delete: "btnDelete_vert", add: "btnAdd_vert" }
             };
 
             const config = buttonMap[sTableId];
@@ -1894,7 +1895,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Handler for allocation view change (Employees/Projects toggle)
+        //  NEW: Handler for allocation view change (Employees/Projects toggle)
         onAllocationViewChange: function (oEvent) {
             // Get selected key from Select control
             const oSelect = oEvent.getSource();
@@ -1931,7 +1932,7 @@ sap.ui.define([
                             oTable.setModel(oModel);
                         }
 
-                        // ✅ Set default filters for Res FilterBar (Employees view in Allocations)
+                        //  Set default filters for Res FilterBar (Employees view in Allocations)
                         const oResFilterBar = this.byId("resFilterBar");
                         if (oResFilterBar) {
                             oResFilterBar.setModel(oModel, "default");
@@ -1943,7 +1944,7 @@ sap.ui.define([
                             if (oFiltersModel) {
                                 oResFilterBar.setModel(oFiltersModel, "$filters");
                             }
-                            // ✅ Set defaults with multiple retries
+                            //  Set defaults with multiple retries
                             setTimeout(() => {
                                 this._setDefaultFilterFields(oResFilterBar, ["ohrId", "band", "skills"]);
                             }, 1000);
@@ -1953,7 +1954,7 @@ sap.ui.define([
                         }
 
                         this.initializeTable("Res").then(() => {
-                            // ✅ NEW: Apply allocation filter to Res table after initialization (empallocpercentage < 95 and status != "Resigned")
+                            //  NEW: Apply allocation filter to Res table after initialization (empallocpercentage < 95 and status != "Resigned")
                             // Use multiple retries to ensure binding is ready
                             const fnApplyAllocationFilter = () => {
                                 const oResBinding = oTable.getRowBinding && oTable.getRowBinding();
@@ -1961,7 +1962,7 @@ sap.ui.define([
                                     const oAllocationFilter = this._getAllocationFilter();
                                     oResBinding.filter([oAllocationFilter]);
 
-                                    // ✅ CRITICAL: Re-apply filter on dataReceived to ensure it persists
+                                    //  CRITICAL: Re-apply filter on dataReceived to ensure it persists
                                     oResBinding.attachDataReceived(() => {
                                         const oCurrentFilters = oResBinding.getFilters();
                                         // Check if allocation filter is already applied
@@ -2028,7 +2029,7 @@ sap.ui.define([
                             oTable.setModel(oModel);
                         }
 
-                        // ✅ Set default filters for Allocations FilterBar (Projects view in Allocations)
+                        //  Set default filters for Allocations FilterBar (Projects view in Allocations)
                         const oAllocationFilterBar = this.byId("allocationFilterBar");
                         if (oAllocationFilterBar) {
                             oAllocationFilterBar.setModel(oModel, "default");
@@ -2040,7 +2041,7 @@ sap.ui.define([
                             if (oFiltersModel) {
                                 oAllocationFilterBar.setModel(oFiltersModel, "$filters");
                             }
-                            // ✅ Set defaults with multiple retries - 3 important filters: projectName, projectType, SOWReceived
+                            //  Set defaults with multiple retries - 3 important filters: projectName, projectType, SOWReceived
                             setTimeout(() => {
                                 this._setDefaultFilterFields(oAllocationFilterBar, ["projectName", "projectType", "SOWReceived"]);
                             }, 1000);
@@ -2051,7 +2052,7 @@ sap.ui.define([
 
                         // Initialize table and trigger initial data load
                         this.initializeTable("Allocations").then(() => {
-                            // ✅ Trigger initial data load by firing FilterBar search event
+                            //  Trigger initial data load by firing FilterBar search event
                             setTimeout(() => {
                                 if (oAllocationFilterBar) {
                                     oAllocationFilterBar.fireSearch();
@@ -2072,7 +2073,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Handler for allocation search
+        //  NEW: Handler for allocation search
         onAllocationSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Allocations");
@@ -2095,7 +2096,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Demand button handler - loads Demands fragment filtered by selected project
+        //  NEW: Demand button handler - loads Demands fragment filtered by selected project
         onDemandPress: function () {
             const oAllocationPage = this.byId("allocationPage");
             const oTable = this.byId("Allocations");
@@ -2115,20 +2116,20 @@ sap.ui.define([
             const oProject = aSelectedContexts[0].getObject();
             const sProjectId = oProject.sapPId || oProject.projectId;
 
-            // ✅ Get project name - Allocations table shows Projects, so projectName should be available
+            //  Get project name - Allocations table shows Projects, so projectName should be available
             let sProjectName = oProject.projectName || sProjectId;
 
             // Store selected project ID and name
             this._sSelectedProjectId = sProjectId;
             this._sSelectedProjectName = sProjectName;
 
-            // ✅ If project name not available, try to fetch it (but don't block navigation)
-            // ✅ CRITICAL: Always ensure data("selectedId") is set with the project ID
+            //  If project name not available, try to fetch it (but don't block navigation)
+            //  CRITICAL: Always ensure data("selectedId") is set with the project ID
             if (!oProject.projectName && !oProject.to_Project?.projectName && oProject.sapPId) {
                 const oModel = this.getOwnerComponent().getModel();
                 if (oModel) {
                     // Use read instead of bindContext to avoid deferred binding issues
-                    // ✅ Display only ID (not name) for association fields
+                    //  Display only ID (not name) for association fields
                     const oProjectInput = this.byId("inputSapPId_demand");
                     if (oProjectInput) {
                         oProjectInput.setValue(sProjectId);
@@ -2136,7 +2137,7 @@ sap.ui.define([
                     }
                 }
             } else {
-                // ✅ Ensure selectedId is always set even if name is already available
+                //  Ensure selectedId is always set even if name is already available
                 const oProjectInput = this.byId("inputSapPId_demand");
                 if (oProjectInput) {
                     oProjectInput.data("selectedId", sProjectId);
@@ -2166,19 +2167,19 @@ sap.ui.define([
                     // Store project ID for filtering BEFORE initialization
                     this._sDemandProjectFilter = sProjectId;
 
-                    // ✅ CRITICAL: Use project ID as-is for filter (sapPId can be "P-0001" format or numeric)
+                    //  CRITICAL: Use project ID as-is for filter (sapPId can be "P-0001" format or numeric)
                     // The filter should match the actual sapPId value in the database
                     let sFilterValue = sProjectId;
 
                     // Check if we need to convert format - but first check what format is in DB
                     // For now, use the project ID as-is since Projects use "P-0001" format
 
-                    // ✅ CRITICAL: Prevent auto-binding by setting filter BEFORE initialization
+                    //  CRITICAL: Prevent auto-binding by setting filter BEFORE initialization
                     // Get binding early and apply filter immediately to prevent initial data load
                     const oEarlyBinding = oDemandsTable.getRowBinding && oDemandsTable.getRowBinding();
                     if (oEarlyBinding && sProjectId) {
                         try {
-                            // ✅ Use project ID as-is (should be "P-0001" format to match Demand CSV)
+                            //  Use project ID as-is (should be "P-0001" format to match Demand CSV)
                             const oFilter = new sap.ui.model.Filter("sapPId", sap.ui.model.FilterOperator.EQ, sProjectId);
                             oEarlyBinding.filter([oFilter]);
                         } catch (e) {
@@ -2193,7 +2194,7 @@ sap.ui.define([
                             const oBinding = oDemandsTable.getRowBinding && oDemandsTable.getRowBinding();
                             if (oBinding && sProjectId) {
                                 try {
-                                    // ✅ Use project ID as-is (should be "P-0001" format to match Demand CSV)
+                                    //  Use project ID as-is (should be "P-0001" format to match Demand CSV)
                                     const oFilter = new sap.ui.model.Filter("sapPId", sap.ui.model.FilterOperator.EQ, sProjectId);
                                     oBinding.filter([oFilter]);
 
@@ -2221,15 +2222,15 @@ sap.ui.define([
 
                     this._resetSegmentedButtonForFragment("Demands");
 
-                    // ✅ Pre-fill project field in demand form with selected project
+                    //  Pre-fill project field in demand form with selected project
                     this._prefillDemandProject(sProjectId, sProjectName);
                 }
             }.bind(this));
         },
 
-        // ✅ NEW: Store project ID in model (project field removed from form)
+        //  NEW: Store project ID in model (project field removed from form)
         _prefillDemandProject: function (sProjectId, sProjectName) {
-            // ✅ Project field removed from form - just store the ID in model and controller
+            //  Project field removed from form - just store the ID in model and controller
             // The project is pre-selected from navigation, so we just need to ensure it's stored
             const sFinalProjectId = this._sSelectedProjectId || sProjectId;
 
@@ -2239,18 +2240,18 @@ sap.ui.define([
                 oDemandModel = new sap.ui.model.json.JSONModel({});
                 this.getView().setModel(oDemandModel, "demandModel");
             }
-            oDemandModel.setProperty("/sapPId", sFinalProjectId); // ✅ Store ID in model
+            oDemandModel.setProperty("/sapPId", sFinalProjectId); //  Store ID in model
 
         },
 
-        // ✅ NEW: Refresh Demands table while preserving project filter
+        //  NEW: Refresh Demands table while preserving project filter
         _refreshDemandsTableWithFilter: function () {
             const oTable = this.byId("Demands");
             if (!oTable) {
                 return;
             }
 
-            // ✅ Use stored project ID (should be "P-0001" format)
+            //  Use stored project ID (should be "P-0001" format)
             const sFilterValue = this._sDemandProjectFilter || this._sSelectedProjectId;
             if (!sFilterValue) {
                 // No filter, use normal refresh
@@ -2275,7 +2276,7 @@ sap.ui.define([
                     const oBinding = oTable.getRowBinding && oTable.getRowBinding();
                     if (oBinding && sFilterValue) {
                         try {
-                            // ✅ Use project ID as-is (should be "P-0001" format to match Demand CSV)
+                            //  Use project ID as-is (should be "P-0001" format to match Demand CSV)
                             const oFilter = new sap.ui.model.Filter("sapPId", sap.ui.model.FilterOperator.EQ, sFilterValue);
                             oBinding.filter([oFilter]);
 
@@ -2294,7 +2295,7 @@ sap.ui.define([
             }, 300);
         },
 
-        // ✅ NEW: Back to Projects handler - returns to Allocations view
+        //  NEW: Back to Projects handler - returns to Allocations view
         onBackToProjectsPress: function () {
             const oAllocationPage = this.byId("allocationPage");
 
@@ -2332,8 +2333,8 @@ sap.ui.define([
             }.bind(this));
         },
 
-        // ✅ NEW: Handler for Demands dropdown to switch between Employees (Res) and Projects (Allocations) views
-        // ✅ ISOLATED: This handler only affects the Demands view dropdown, does not interfere with onAllocationViewChange
+        //  NEW: Handler for Demands dropdown to switch between Employees (Res) and Projects (Allocations) views
+        //  ISOLATED: This handler only affects the Demands view dropdown, does not interfere with onAllocationViewChange
         onSelection: function (oEvent) {
             // Get selected key from Select control
             const oSelect = oEvent.getSource();
@@ -2370,7 +2371,7 @@ sap.ui.define([
                             oTable.setModel(oModel);
                         }
 
-                        // ✅ Set default filters for Res FilterBar (Employees view in Allocations)
+                        //  Set default filters for Res FilterBar (Employees view in Allocations)
                         const oResFilterBar = this.byId("resFilterBar");
                         if (oResFilterBar) {
                             oResFilterBar.setModel(oModel, "default");
@@ -2382,7 +2383,7 @@ sap.ui.define([
                             if (oFiltersModel) {
                                 oResFilterBar.setModel(oFiltersModel, "$filters");
                             }
-                            // ✅ Set defaults with multiple retries
+                            //  Set defaults with multiple retries
                             setTimeout(() => {
                                 this._setDefaultFilterFields(oResFilterBar, ["ohrId", "band", "skills"]);
                             }, 1000);
@@ -2392,14 +2393,14 @@ sap.ui.define([
                         }
 
                         this.initializeTable("Res").then(() => {
-                            // ✅ CRITICAL: Apply Unproductive Bench filter to Res table after initialization
+                            //  CRITICAL: Apply Unproductive Bench filter to Res table after initialization
                             const fnApplyBenchFilter = () => {
                                 const oResBinding = oTable.getRowBinding && oTable.getRowBinding();
                                 if (oResBinding) {
                                     const oBenchFilter = new sap.ui.model.Filter("status", sap.ui.model.FilterOperator.EQ, "Unproductive Bench");
                                     oResBinding.filter([oBenchFilter]);
 
-                                    // ✅ CRITICAL: Re-apply filter on dataReceived to ensure it persists
+                                    //  CRITICAL: Re-apply filter on dataReceived to ensure it persists
                                     oResBinding.attachDataReceived(() => {
                                         const oCurrentFilters = oResBinding.getFilters();
                                         const bHasBenchFilter = oCurrentFilters && oCurrentFilters.some(f =>
@@ -2451,7 +2452,7 @@ sap.ui.define([
                             oTable.setModel(oModel);
                         }
 
-                        // ✅ Set default filters for Allocations FilterBar (Projects view in Allocations)
+                        //  Set default filters for Allocations FilterBar (Projects view in Allocations)
                         const oAllocationFilterBar = this.byId("allocationFilterBar");
                         if (oAllocationFilterBar) {
                             oAllocationFilterBar.setModel(oModel, "default");
@@ -2463,7 +2464,7 @@ sap.ui.define([
                             if (oFiltersModel) {
                                 oAllocationFilterBar.setModel(oFiltersModel, "$filters");
                             }
-                            // ✅ Set defaults with multiple retries - 3 important filters: projectName, projectType, SOWReceived
+                            //  Set defaults with multiple retries - 3 important filters: projectName, projectType, SOWReceived
                             setTimeout(() => {
                                 this._setDefaultFilterFields(oAllocationFilterBar, ["projectName", "projectType", "SOWReceived"]);
                             }, 1000);
@@ -2479,8 +2480,8 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Resources handler - shows resources for selected demand
-        // ✅ NEW: Find Resources handler - opens dialog to select bench employees
+        //  NEW: Resources handler - shows resources for selected demand
+        //  NEW: Find Resources handler - opens dialog to select bench employees
         onResourcesPress: function () {
 
             // Get selected demand to get project ID
@@ -2496,31 +2497,31 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Get project ID and demand ID from selected demand
+            //  CRITICAL: Get project ID and demand ID from selected demand
             // 1. From stored filter (set when navigating from Projects)
             // 2. From selected project ID (set when navigating from Projects)
             // 3. From selected demand's sapPId
             let sProjectId = this._sDemandProjectFilter || this._sSelectedProjectId;
             let iDemandId = null;
 
-            // ✅ Try to get project data and demand ID from selected demand's association (if available)
+            //  Try to get project data and demand ID from selected demand's association (if available)
             let oProjectData = null;
             if (aSelectedContexts.length > 0) {
                 const oDemand = aSelectedContexts[0].getObject();
-                // ✅ Store demand ID from selected demand
+                //  Store demand ID from selected demand
                 iDemandId = oDemand.demandId;
 
                 // If no project ID yet, get it from demand
                 if (!sProjectId) {
                     sProjectId = oDemand.sapPId;
                 }
-                // ✅ Always try to get project data from demand's association (has dates)
+                //  Always try to get project data from demand's association (has dates)
                 if (oDemand.to_Project) {
                     oProjectData = oDemand.to_Project;
                 }
             }
 
-            // ✅ Store demand ID for use in allocation
+            //  Store demand ID for use in allocation
             this._sAllocationDemandId = iDemandId;
 
             if (!sProjectId) {
@@ -2532,7 +2533,7 @@ sap.ui.define([
             // Store project ID for allocation
             this._sAllocationProjectId = sProjectId;
 
-            // ✅ Store project data if available from demand association (has dates for validation)
+            //  Store project data if available from demand association (has dates for validation)
             if (oProjectData && oProjectData.startDate && oProjectData.endDate) {
                 this._oAllocationProjectData = {
                     startDate: oProjectData.startDate,
@@ -2552,7 +2553,7 @@ sap.ui.define([
                     this.getView().addDependent(this._oFindResourcesDialog);
                     this._oFindResourcesDialog.open();
 
-                    // ✅ Verify button is accessible - try multiple methods
+                    //  Verify button is accessible - try multiple methods
                     let oAllocateBtn = this.byId("btnFindResourcesAllocate");
                     if (!oAllocateBtn) {
                         // Try using Fragment.byId
@@ -2566,7 +2567,7 @@ sap.ui.define([
                     } else {
                     }
 
-                    // ✅ Apply allocation filter to Find Resources table (same as Res table)
+                    //  Apply allocation filter to Find Resources table (same as Res table)
                     // Filter: empallocpercentage <= 95% AND status != "Resigned"
                     const oFindResourcesTable = this.byId("findResourcesTable");
                     if (oFindResourcesTable && oFindResourcesTable.getBinding) {
@@ -2577,13 +2578,13 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ Auto-fill dates from project (will use cached data or fetch)
+                    //  Auto-fill dates from project (will use cached data or fetch)
                     this._prefillAllocationDates(sProjectId);
                 });
             } else {
                 this._oFindResourcesDialog.open();
 
-                // ✅ Verify button is accessible - try multiple methods
+                //  Verify button is accessible - try multiple methods
                 let oAllocateBtn = this.byId("btnFindResourcesAllocate");
                 if (!oAllocateBtn) {
                     // Try using Fragment.byId
@@ -2597,7 +2598,7 @@ sap.ui.define([
                 } else {
                 }
 
-                // ✅ Apply allocation filter to Find Resources table (same as Res table)
+                //  Apply allocation filter to Find Resources table (same as Res table)
                 // Filter: empallocpercentage <= 95% AND status != "Resigned"
                 const oFindResourcesTable = this.byId("findResourcesTable");
                 if (oFindResourcesTable && oFindResourcesTable.getBinding) {
@@ -2608,17 +2609,17 @@ sap.ui.define([
                     }
                 }
 
-                // ✅ Auto-fill dates from project (will use cached data or fetch)
+                //  Auto-fill dates from project (will use cached data or fetch)
                 this._prefillAllocationDates(sProjectId);
             }
         },
 
-        // ✅ NEW: Helper to pre-fill allocation dates from project
+        //  NEW: Helper to pre-fill allocation dates from project
         _prefillAllocationDates: function (sProjectId) {
             const oModel = this.getOwnerComponent().getModel();
             if (!oModel || !sProjectId) return;
 
-            // ✅ Use cached data if available (set when opening from Demands)
+            //  Use cached data if available (set when opening from Demands)
             if (this._oAllocationProjectData && this._oAllocationProjectData.startDate && this._oAllocationProjectData.endDate) {
                 const oStartDatePicker = this.byId("allocationStartDate");
                 const oEndDatePicker = this.byId("allocationEndDate");
@@ -2633,13 +2634,13 @@ sap.ui.define([
                     oEndDatePicker.data("projectEndDate", this._oAllocationProjectData.endDate);
                 }
             } else {
-                // ✅ If no cached data, try to get from demand association (when coming from Demands)
+                //  If no cached data, try to get from demand association (when coming from Demands)
                 // This should have been set in onResourcesPress, but if not, skip pre-fill
                 // User can manually enter dates, and backend will validate
             }
         },
 
-        // ✅ NEW: Find Resources dialog close handler
+        //  NEW: Find Resources dialog close handler
         onFindResourcesDialogClose: function () {
             if (this._oFindResourcesDialog) {
                 this._oFindResourcesDialog.close();
@@ -2664,7 +2665,7 @@ sap.ui.define([
                     oEndDatePicker.setValue("");
                     oEndDatePicker.data("projectEndDate", "");
                 }
-                // ✅ Clear allocation percentage field
+                //  Clear allocation percentage field
                 const oPercentageInput = this.byId("allocationPercentage_find");
                 if (oPercentageInput) {
                     oPercentageInput.setValue("100");
@@ -2672,7 +2673,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Find Resources search handler
+        //  NEW: Find Resources search handler
         onFindResourcesSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("findResourcesTable");
@@ -2683,7 +2684,7 @@ sap.ui.define([
 
             const oBinding = oTable.getBinding("items");
             if (oBinding) {
-                // ✅ NEW: Always include allocation filter (empallocpercentage < 95 and status != "Resigned"), add search filter on top
+                //  NEW: Always include allocation filter (empallocpercentage < 95 and status != "Resigned"), add search filter on top
                 const aFilters = [
                     this._getAllocationFilter()
                 ];
@@ -2696,12 +2697,12 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Find Resources selection change handler
+        //  NEW: Find Resources selection change handler
         onFindResourcesSelectionChange: function (oEvent) {
             const oTable = oEvent.getSource();
             const aSelectedItems = oTable.getSelectedItems();
 
-            // ✅ Try multiple ways to find the button
+            //  Try multiple ways to find the button
             let oAllocateBtn = this.byId("btnFindResourcesAllocate");
             if (!oAllocateBtn) {
                 // Try using Fragment.byId
@@ -2720,10 +2721,10 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Find Resources allocate handler - creates allocation record
+        //  NEW: Find Resources allocate handler - creates allocation record
         onFindResourcesAllocate: function (oEvent) {
 
-            // ✅ Try multiple ways to find the table
+            //  Try multiple ways to find the table
             let oTable = this.byId("findResourcesTable");
             if (!oTable && this._oFindResourcesDialog) {
                 // Try to find it in the dialog content
@@ -2755,7 +2756,7 @@ sap.ui.define([
             }
 
 
-            // ✅ Get all selected employees
+            //  Get all selected employees
             const aEmployees = [];
             for (let i = 0; i < aSelectedItems.length; i++) {
                 const oSelectedItem = aSelectedItems[i];
@@ -2783,7 +2784,7 @@ sap.ui.define([
             // Note: Keep project ID in original format (P-0006) as Project entity uses this format
             // The allocation entity's projectId should match Project.sapPId format
 
-            // ✅ Get demandId from stored value (set when opening dialog from selected demand)
+            //  Get demandId from stored value (set when opening dialog from selected demand)
             const iDemandId = this._sAllocationDemandId;
 
             if (!iDemandId) {
@@ -2806,14 +2807,14 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Validate dates against project dates
+            //  CRITICAL: Validate dates against project dates
             const oModel = this.getOwnerComponent().getModel();
             if (!oModel) {
                 sap.m.MessageToast.show("Model not found");
                 return;
             }
 
-            // ✅ Get project dates from multiple sources (priority order):
+            //  Get project dates from multiple sources (priority order):
             // 1. Cached project data
             // 2. Date picker data attributes (stored when pre-filled)
             // 3. Fetch from server if needed
@@ -2828,7 +2829,7 @@ sap.ui.define([
                 sProjectEndDate = oEndDatePicker.data("projectEndDate");
             }
 
-            // ✅ Validate dates once for all allocations
+            //  Validate dates once for all allocations
             const fnValidateDates = (oProject) => {
                 // Use fetched project dates if available
                 if (oProject && oProject.startDate && oProject.endDate) {
@@ -2836,7 +2837,7 @@ sap.ui.define([
                     sProjectEndDate = oProject.endDate;
                 }
 
-                // ✅ Validate allocation dates against project dates
+                //  Validate allocation dates against project dates
                 if (sProjectStartDate && sStartDate) {
                     const oAllocStart = new Date(sStartDate);
                     const oProjStart = new Date(sProjectStartDate);
@@ -2874,14 +2875,14 @@ sap.ui.define([
                 return true;
             };
 
-            // ✅ Create allocations for all selected employees
+            //  Create allocations for all selected employees
             const fnCreateAllocations = () => {
                 // Validate dates first
                 if (!fnValidateDates(null)) {
                     return;
                 }
 
-                // ✅ Get allocation percentage from input field - try multiple methods
+                //  Get allocation percentage from input field - try multiple methods
                 let oPercentageInput = null;
 
                 // Method 1: Direct byId
@@ -2934,12 +2935,12 @@ sap.ui.define([
                     if (this._oFindResourcesDialog) {
                         // Dialog debugging removed
                     }
-                    // ✅ CRITICAL: Don't silently default to 100% - show error to user
+                    //  CRITICAL: Don't silently default to 100% - show error to user
                     sap.m.MessageBox.error("Could not find allocation percentage input field. Please refresh the page and try again.");
                     return;
                 }
 
-                // ✅ Parse percentage - handle empty string, null, undefined
+                //  Parse percentage - handle empty string, null, undefined
                 let iPercentage = 100; // Default to 100 if not provided
                 if (sPercentage !== null && sPercentage !== undefined && sPercentage !== "" && sPercentage.trim() !== "") {
                     const iParsed = parseInt(sPercentage.trim(), 10);
@@ -2950,27 +2951,27 @@ sap.ui.define([
                         return;
                     }
                 } else {
-                    // ✅ If field is found but empty, use default 100% (this is expected behavior)
+                    //  If field is found but empty, use default 100% (this is expected behavior)
                 }
 
 
-                // ✅ Use the SAME validation logic as employee level allocation
+                //  Use the SAME validation logic as employee level allocation
                 // First: Validate project resource limits
                 // Second: Validate employee allocation percentages (same as onAllocateConfirm)
                 const fnValidateAndCreate = async () => {
-                    // ✅ STEP 1: Validate project resource limits (same as employee level)
+                    //  STEP 1: Validate project resource limits (same as employee level)
                     const bProjectValid = await this._validateProjectResourceLimits(sProjectId, aEmployees.length, oModel);
                     if (!bProjectValid) {
                         return; // Error popup already shown by validation function
                     }
 
-                    // ✅ STEP 1.5: Validate demand resource limits
+                    //  STEP 1.5: Validate demand resource limits
                     const bDemandValid = await this._validateDemandResourceLimits(iDemandId, aEmployees.length, oModel);
                     if (!bDemandValid) {
                         return; // Error popup already shown by validation function
                     }
 
-                    // ✅ STEP 1.5: Refresh employee data to get latest empallocpercentage values
+                    //  STEP 1.5: Refresh employee data to get latest empallocpercentage values
                     // The employee objects from table might have stale values
                     const aRefreshedEmployees = [];
                     for (let i = 0; i < aEmployees.length; i++) {
@@ -2996,7 +2997,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ STEP 2: Validate each employee's allocation percentage (SAME LOGIC as employee level)
+                    //  STEP 2: Validate each employee's allocation percentage (SAME LOGIC as employee level)
                     const aValidEmployees = [];
                     const aInvalidEmployees = [];
 
@@ -3010,7 +3011,7 @@ sap.ui.define([
                         const iCombinedPercentage = iEmpAllocPercentage + iPercentage;
 
 
-                        // ✅ Validate: Check if combined percentage exceeds 100%
+                        //  Validate: Check if combined percentage exceeds 100%
                         if (iCombinedPercentage > 100) {
                             aInvalidEmployees.push({
                                 name: oEmployee.fullName,
@@ -3025,7 +3026,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ Show warning/error if some employees cannot be allocated (SAME POPUP as employee level)
+                    //  Show warning/error if some employees cannot be allocated (SAME POPUP as employee level)
                     if (aInvalidEmployees.length > 0) {
                         let sErrorMessage = `Cannot allocate ${aInvalidEmployees.length} employee(s) - allocation would exceed 100%:\n\n`;
                         aInvalidEmployees.forEach((oInvalid) => {
@@ -3056,15 +3057,15 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ All employees are valid - create allocations
+                    //  All employees are valid - create allocations
                     this._createAllocationsForFindResources(aValidEmployees, sProjectId, iDemandId, sStartDate, sEndDate, iPercentage, oModel, aEmployees);
                 };
 
                 fnValidateAndCreate();
             };
 
-            // ✅ If we have project dates, validate and create immediately
-            // ✅ If dates aren't available, skip frontend validation and let backend handle it
+            //  If we have project dates, validate and create immediately
+            //  If dates aren't available, skip frontend validation and let backend handle it
             if (sProjectStartDate && sProjectEndDate) {
                 fnCreateAllocations();
             } else {
@@ -3073,11 +3074,11 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Helper function to create allocations for valid employees from Find Resources (same pattern as employee level)
+        //  NEW: Helper function to create allocations for valid employees from Find Resources (same pattern as employee level)
         _createAllocationsForFindResources: function (aValidEmployees, sProjectId, iDemandId, sStartDate, sEndDate, iPercentage, oModel, aAllEmployees) {
             const aAllocationData = [];
 
-            // ✅ IMPORTANT: Do NOT update empallocpercentage on frontend
+            //  IMPORTANT: Do NOT update empallocpercentage on frontend
             // The backend's after('CREATE', Allocations) hook will handle it after validation
             for (let i = 0; i < aValidEmployees.length; i++) {
                 const oEmployee = aValidEmployees[i];
@@ -3092,7 +3093,7 @@ sap.ui.define([
                     allocationId: sAllocationId,
                     employeeId: oEmployee.ohrId,
                     projectId: sProjectId,
-                    demandId: iDemandId, // ✅ NEW: Include demandId
+                    demandId: iDemandId, //  NEW: Include demandId
                     startDate: sStartDate,
                     endDate: sEndDate,
                     allocationPercentage: iPercentage,
@@ -3104,20 +3105,20 @@ sap.ui.define([
             }
 
 
-            // ✅ Use the same batch creation function
+            //  Use the same batch creation function
             this._createValidAllocationsFromFindResources(aAllocationData, oModel, aValidEmployees);
         },
 
-        // ✅ DEPRECATED: This function is no longer used - validation now happens before calling _createAllocationsForFindResources
+        //  DEPRECATED: This function is no longer used - validation now happens before calling _createAllocationsForFindResources
         // Kept for backward compatibility
         _createMultipleAllocationsFromFindResources: async function (aAllocationData, oModel, aEmployees) {
             // Just create allocations directly (validation should have happened already)
             this._createValidAllocationsFromFindResources(aAllocationData, oModel, aEmployees);
         },
 
-        // ✅ NEW: Helper function to validate employees and create allocations from Find Resources
+        //  NEW: Helper function to validate employees and create allocations from Find Resources
         _validateAndCreateFromFindResources: function (aAllocationData, oModel, aEmployees) {
-            // ✅ NEW: Validate each employee's allocation percentage before creating
+            //  NEW: Validate each employee's allocation percentage before creating
             const aValidAllocationData = [];
             const aInvalidEmployees = [];
 
@@ -3149,7 +3150,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ Show warning if some employees cannot be allocated
+            //  Show warning if some employees cannot be allocated
             if (aInvalidEmployees.length > 0) {
                 let sErrorMessage = `Cannot allocate ${aInvalidEmployees.length} employee(s) - allocation would exceed 100%:\n\n`;
                 aInvalidEmployees.forEach((oInvalid) => {
@@ -3180,14 +3181,14 @@ sap.ui.define([
                 }
             }
 
-            // ✅ All employees are valid - create allocations
+            //  All employees are valid - create allocations
             this._createValidAllocationsFromFindResources(aAllocationData, oModel, aEmployees);
         },
 
-        // ✅ NEW: Helper function to create valid allocations from Find Resources
+        //  NEW: Helper function to create valid allocations from Find Resources
         _createValidAllocationsFromFindResources: function (aAllocationData, oModel, aEmployees) {
 
-            // ✅ CRITICAL: Group allocations by employee to detect duplicates in batch
+            //  CRITICAL: Group allocations by employee to detect duplicates in batch
             const mEmployeeAllocations = {}; // employeeId -> array of allocations
             for (let i = 0; i < aAllocationData.length; i++) {
                 const oAllocData = aAllocationData[i];
@@ -3198,7 +3199,7 @@ sap.ui.define([
                 mEmployeeAllocations[sEmployeeId].push(oAllocData);
             }
 
-            // ✅ Check for duplicate employees in batch (would cause validation issues)
+            //  Check for duplicate employees in batch (would cause validation issues)
             for (const sEmployeeId in mEmployeeAllocations) {
                 const aAllocsForEmployee = mEmployeeAllocations[sEmployeeId];
                 if (aAllocsForEmployee.length > 1) {
@@ -3211,12 +3212,12 @@ sap.ui.define([
                 }
             }
 
-            // ✅ CRITICAL: Use correct entity name "Allocations"
+            //  CRITICAL: Use correct entity name "Allocations"
             const oBinding = oModel.bindList("/Allocations", null, [], [], {
                 groupId: "changesGroup"
             });
 
-            // ✅ Create all allocations in the batch
+            //  Create all allocations in the batch
             const aContexts = [];
             for (let i = 0; i < aAllocationData.length; i++) {
                 const oAllocData = aAllocationData[i];
@@ -3226,7 +3227,7 @@ sap.ui.define([
                     continue;
                 }
 
-                // ✅ Explicitly set all properties on the context
+                //  Explicitly set all properties on the context
                 Object.keys(oAllocData).forEach((sKey) => {
                     try {
                         oNewContext.setProperty(sKey, oAllocData[sKey]);
@@ -3246,7 +3247,7 @@ sap.ui.define([
             // Submit batch
             oModel.submitBatch("changesGroup").then((oResponse) => {
 
-                // ✅ Check if all contexts were created successfully
+                //  Check if all contexts were created successfully
                 let iSuccessCount = 0;
                 for (let i = 0; i < aContexts.length; i++) {
                     const oContext = aContexts[i];
@@ -3261,7 +3262,7 @@ sap.ui.define([
                     const aEmployeeNames = aEmployees.map(o => o.fullName).join(", ");
                     sap.m.MessageToast.show(`${iSuccessCount} employee(s) allocated successfully: ${aEmployeeNames}`);
 
-                    // ✅ CRITICAL: Clear selection from Find Resources table BEFORE closing dialog
+                    //  CRITICAL: Clear selection from Find Resources table BEFORE closing dialog
                     const oFindResourcesTable = this.byId("findResourcesTable");
                     if (oFindResourcesTable) {
                         if (oFindResourcesTable.removeSelections) {
@@ -3274,7 +3275,7 @@ sap.ui.define([
                     // Close dialog
                     this.onFindResourcesDialogClose();
 
-                    // ✅ CRITICAL: Refresh Demands table and re-apply project filter
+                    //  CRITICAL: Refresh Demands table and re-apply project filter
                     const oDemandsTable = this.byId("Demands");
                     if (oDemandsTable && oDemandsTable.rebind) {
                         oDemandsTable.rebind();
@@ -3285,12 +3286,12 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
+                    //  CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
                     setTimeout(() => {
                         this._hardRefreshTable("Projects");
                     }, 800);
 
-                    // ✅ NEW: Refresh Find Resources table and re-apply allocation filter
+                    //  NEW: Refresh Find Resources table and re-apply allocation filter
                     if (oFindResourcesTable && oFindResourcesTable.getBinding) {
                         setTimeout(() => {
                             const oBinding = oFindResourcesTable.getBinding("items");
@@ -3304,7 +3305,7 @@ sap.ui.define([
                     sap.m.MessageBox.warning(`${iSuccessCount} of ${aContexts.length} allocation(s) created successfully. Some may have failed.`);
                 }
             }).catch((oError) => {
-                // ✅ CRITICAL: Extract error message from batch response with better parsing
+                //  CRITICAL: Extract error message from batch response with better parsing
                 let sErrorMessage = `Failed to create allocation(s). ${aAllocationData.length} employee(s) selected.`;
 
                 // Try multiple ways to extract error message
@@ -3332,14 +3333,14 @@ sap.ui.define([
                     sErrorMessage = oError;
                 }
 
-                // ✅ Show error popup with detailed message
+                //  Show error popup with detailed message
                 sap.m.MessageBox.error(sErrorMessage, {
                     title: "Allocation Failed"
                 });
             });
         },
 
-        // ✅ NEW: Shared helper function to validate project resource limits
+        //  NEW: Shared helper function to validate project resource limits
         // Returns: Promise<boolean> - true if valid, false if invalid (error popup shown)
         _validateProjectResourceLimits: async function (sProjectId, iNewAllocations, oModel) {
             if (!sProjectId || !oModel) {
@@ -3361,7 +3362,7 @@ sap.ui.define([
                 const iTotalAfterAllocation = iCurrentAllocated + iNewAllocations;
 
 
-                // ✅ Project-level validation: Check if allocating would exceed requiredResources
+                //  Project-level validation: Check if allocating would exceed requiredResources
                 if (iRequiredResources > 0 && iTotalAfterAllocation > iRequiredResources) {
                     const iExcess = iTotalAfterAllocation - iRequiredResources;
                     const iCanAllocate = Math.max(0, iRequiredResources - iCurrentAllocated);
@@ -3386,7 +3387,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Validate demand resource limits (similar to project validation)
+        //  NEW: Validate demand resource limits (similar to project validation)
         _validateDemandResourceLimits: async function (iDemandId, iNewAllocations, oModel) {
             if (!iDemandId || !oModel) {
                 return true; // Allow to continue - backend will validate
@@ -3407,7 +3408,7 @@ sap.ui.define([
                 const iTotalAfterAllocation = iCurrentAllocated + iNewAllocations;
 
 
-                // ✅ Demand-level validation: Check if allocating would exceed quantity
+                //  Demand-level validation: Check if allocating would exceed quantity
                 if (iQuantity > 0 && iTotalAfterAllocation > iQuantity) {
                     const iExcess = iTotalAfterAllocation - iQuantity;
                     const iCanAllocate = Math.max(0, iQuantity - iCurrentAllocated);
@@ -3434,10 +3435,10 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Helper function to create multiple allocations from AllocateDialog
+        //  NEW: Helper function to create multiple allocations from AllocateDialog
         _createMultipleAllocationsFromAllocateDialog: function (aAllocationData, oModel, aEmployees, oResTable) {
 
-            // ✅ NEW: Validate project resource limits (safety check - should already be validated in onAllocateConfirm)
+            //  NEW: Validate project resource limits (safety check - should already be validated in onAllocateConfirm)
             if (aAllocationData.length > 0) {
                 const sProjectId = aAllocationData[0].projectId;
                 if (sProjectId) {
@@ -3481,16 +3482,16 @@ sap.ui.define([
             this._createAllocationsBatch(aAllocationData, oModel, aEmployees, oResTable);
         },
 
-        // ✅ NEW: Helper function to create allocations batch (extracted from _createMultipleAllocationsFromAllocateDialog)
+        //  NEW: Helper function to create allocations batch (extracted from _createMultipleAllocationsFromAllocateDialog)
         _createAllocationsBatch: function (aAllocationData, oModel, aEmployees, oResTable) {
 
-            // ✅ CRITICAL: Use correct entity name "Allocations"
+            //  CRITICAL: Use correct entity name "Allocations"
             const oBinding = oModel.bindList("/Allocations", null, [], [], {
                 $$groupId: "changesGroup",
                 $$updateGroupId: "changesGroup"
             });
 
-            // ✅ Create all allocations in the batch
+            //  Create all allocations in the batch
             const aContexts = [];
             for (let i = 0; i < aAllocationData.length; i++) {
                 const oAllocData = aAllocationData[i];
@@ -3500,7 +3501,7 @@ sap.ui.define([
                     continue;
                 }
 
-                // ✅ Explicitly set all properties on the context
+                //  Explicitly set all properties on the context
                 Object.keys(oAllocData).forEach((sKey) => {
                     try {
                         oNewContext.setProperty(sKey, oAllocData[sKey]);
@@ -3520,7 +3521,7 @@ sap.ui.define([
             // Submit batch
             oModel.submitBatch("changesGroup").then((oResponse) => {
 
-                // ✅ Check if all contexts were created successfully
+                //  Check if all contexts were created successfully
                 let iSuccessCount = 0;
                 for (let i = 0; i < aContexts.length; i++) {
                     const oContext = aContexts[i];
@@ -3535,7 +3536,7 @@ sap.ui.define([
                     const aEmployeeNames = aEmployees.map(o => o.fullName).join(", ");
                     sap.m.MessageToast.show(`${iSuccessCount} employee(s) allocated successfully: ${aEmployeeNames}`);
 
-                    // ✅ CRITICAL: Clear selection from Res table BEFORE closing dialog
+                    //  CRITICAL: Clear selection from Res table BEFORE closing dialog
                     if (oResTable) {
                         if (oResTable.clearSelection) {
                             oResTable.clearSelection();
@@ -3544,7 +3545,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ CRITICAL: Close dialog - try multiple ways to ensure it closes
+                    //  CRITICAL: Close dialog - try multiple ways to ensure it closes
                     const oDialog = this.byId("allocateDialog") || this._oAllocateDialog;
                     if (oDialog) {
                         try {
@@ -3570,7 +3571,7 @@ sap.ui.define([
                     this.byId("startDate")?.setValue("");
                     this.byId("endDate")?.setValue("");
 
-                    // ✅ CRITICAL: Refresh tables and re-apply filters
+                    //  CRITICAL: Refresh tables and re-apply filters
                     if (oResTable && oResTable.rebind) {
                         oResTable.rebind();
                         // Re-apply allocation filter after rebind
@@ -3583,12 +3584,12 @@ sap.ui.define([
                         }, 300);
                     }
 
-                    // ✅ CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
+                    //  CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
                     setTimeout(() => {
                         this._hardRefreshTable("Projects");
                     }, 800);
 
-                    // ✅ CRITICAL: Re-apply demand filter if we're on Demands screen
+                    //  CRITICAL: Re-apply demand filter if we're on Demands screen
                     if (this._sDemandProjectFilter) {
                         setTimeout(() => {
                             this._refreshDemandsTableWithFilter(this._sDemandProjectFilter);
@@ -3598,7 +3599,7 @@ sap.ui.define([
                     sap.m.MessageBox.warning(`${iSuccessCount} of ${aContexts.length} allocation(s) created successfully. Some may have failed.`);
                 }
             }).catch((oError) => {
-                // ✅ CRITICAL: Extract error message from batch response with better parsing
+                //  CRITICAL: Extract error message from batch response with better parsing
                 let sErrorMessage = `Failed to create allocation(s). ${aAllocationData.length} employee(s) selected.`;
 
                 // Try multiple ways to extract error message
@@ -3626,24 +3627,24 @@ sap.ui.define([
                     sErrorMessage = oError;
                 }
 
-                // ✅ Show error popup with detailed message
+                //  Show error popup with detailed message
                 sap.m.MessageBox.error(sErrorMessage, {
                     title: "Allocation Failed"
                 });
             });
         },
 
-        // ✅ NEW: Helper function to create single allocation from Find Resources (kept for backward compatibility)
+        //  NEW: Helper function to create single allocation from Find Resources (kept for backward compatibility)
         _createAllocationFromFindResources: function (oAllocationData, oModel, oEmployee) {
 
 
-            // ✅ CRITICAL: Use correct entity name "Allocations" (not "EmployeeProjectAllocations")
+            //  CRITICAL: Use correct entity name "Allocations" (not "EmployeeProjectAllocations")
             // The service exposes it as "Allocations" (see srv/service.cds)
             const oBinding = oModel.bindList("/Allocations", null, [], [], {
                 groupId: "changesGroup"
             });
 
-            // ✅ CRITICAL: Pass "changesGroup" as second parameter to create() - same as Customer/Employee
+            //  CRITICAL: Pass "changesGroup" as second parameter to create() - same as Customer/Employee
             const oNewContext = oBinding.create(oAllocationData, "changesGroup");
 
             if (!oNewContext) {
@@ -3652,7 +3653,7 @@ sap.ui.define([
             }
 
 
-            // ✅ CRITICAL: Explicitly set all properties on the context to ensure they're queued
+            //  CRITICAL: Explicitly set all properties on the context to ensure they're queued
             Object.keys(oAllocationData).forEach((sKey) => {
                 try {
                     oNewContext.setProperty(sKey, oAllocationData[sKey]);
@@ -3660,13 +3661,13 @@ sap.ui.define([
                 }
             });
 
-            // ✅ CRITICAL: Check if batch group has pending changes before submitting
+            //  CRITICAL: Check if batch group has pending changes before submitting
             const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
 
             // Submit batch
             oModel.submitBatch("changesGroup").then((oResponse) => {
-                // ✅ CRITICAL: Check for errors in batch response
+                //  CRITICAL: Check for errors in batch response
 
                 // Verify the context was actually created successfully
                 // If there was an error, the context might be in error state
@@ -3682,7 +3683,7 @@ sap.ui.define([
                             // Close dialog
                             this.onFindResourcesDialogClose();
 
-                            // ✅ CRITICAL: Refresh Demands table and re-apply project filter
+                            //  CRITICAL: Refresh Demands table and re-apply project filter
                             const oDemandsTable = this.byId("Demands");
                             if (oDemandsTable && oDemandsTable.rebind) {
                                 oDemandsTable.rebind();
@@ -3694,12 +3695,12 @@ sap.ui.define([
                                 }
                             }
 
-                            // ✅ CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
+                            //  CRITICAL: Refresh Projects table to update allocation counts (allocatedResources, toBeAllocated)
                             setTimeout(() => {
                                 this._hardRefreshTable("Projects");
                             }, 800);
 
-                            // ✅ CRITICAL: Refresh Find Resources table and re-apply Unproductive Bench filter
+                            //  CRITICAL: Refresh Find Resources table and re-apply Unproductive Bench filter
                             const oFindResourcesTable = this.byId("findResourcesTable");
                             if (oFindResourcesTable && oFindResourcesTable.getBinding) {
                                 setTimeout(() => {
@@ -3724,7 +3725,7 @@ sap.ui.define([
                     sap.m.MessageBox.error("Failed to create allocation. Please check the data and try again.");
                 }
             }).catch((oError) => {
-                // ✅ CRITICAL: Extract error message from batch response
+                //  CRITICAL: Extract error message from batch response
                 let sErrorMessage = "Failed to create allocation. Please check the data and try again.";
 
                 if (oError.message) {
@@ -3744,7 +3745,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Generate UUID for allocationId
+        //  NEW: Generate UUID for allocationId
         _generateUUID: function () {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 const r = Math.random() * 16 | 0;
@@ -3753,7 +3754,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Allocate Resource handler - opens allocation dialog
+        //  NEW: Allocate Resource handler - opens allocation dialog
         onAllocateRes: function () {
 
             if (!this._oAllocateDialog) {
@@ -3765,19 +3766,19 @@ sap.ui.define([
                     this._oAllocateDialog = oDialog;
                     this.getView().addDependent(this._oAllocateDialog);
                     this._oAllocateDialog.open();
-                    // ✅ NEW: Populate selected employees' allocation details when dialog opens
+                    //  NEW: Populate selected employees' allocation details when dialog opens
                     this._populateSelectedEmployeesAllocations();
                 }.bind(this));
             } else {
                 this._oAllocateDialog.open();
-                // ✅ NEW: Populate selected employees' allocation details when dialog opens
+                //  NEW: Populate selected employees' allocation details when dialog opens
                 this._populateSelectedEmployeesAllocations();
             }
         },
 
-        // ✅ NEW: Allocate confirm handler - creates allocation from AllocateDialog
+        //  NEW: Allocate confirm handler - creates allocation from AllocateDialog
         onAllocateConfirm: async function () {
-            // ✅ Get all selected employees from Res fragment (supports multi-select)
+            //  Get all selected employees from Res fragment (supports multi-select)
             const oResTable = this.byId("Res");
             const aEmployees = [];
 
@@ -3818,7 +3819,7 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ NEW: Validate demandId is selected
+            //  NEW: Validate demandId is selected
             if (!iDemandId) {
                 sap.m.MessageBox.error("Please select a demand for the allocation.\n\nDemand selection is required to track resource allocation at the demand level.", {
                     title: "Demand Selection Required"
@@ -3826,13 +3827,13 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Validate dates are provided
+            //  CRITICAL: Validate dates are provided
             if (!sStartDate || !sEndDate) {
                 sap.m.MessageBox.error("Please select start date and end date");
                 return;
             }
 
-            // ✅ CRITICAL: Validate allocation dates against project dates
+            //  CRITICAL: Validate allocation dates against project dates
             const sProjectStartDate = oStartDatePicker ? oStartDatePicker.data("projectStartDate") : null;
             const sProjectEndDate = oEndDatePicker ? oEndDatePicker.data("projectEndDate") : null;
 
@@ -3874,7 +3875,7 @@ sap.ui.define([
             }
 
 
-            // ✅ Get allocation percentage from input field
+            //  Get allocation percentage from input field
             let oPercentageInput = this.byId("allocationPercentage_allocate");
             if (!oPercentageInput && this._oAllocateDialog) {
                 // Try to find in the dialog fragment
@@ -3894,7 +3895,7 @@ sap.ui.define([
             } else {
             }
 
-            // ✅ Parse percentage - handle empty string, null, undefined
+            //  Parse percentage - handle empty string, null, undefined
             let iPercentage = 100; // Default to 100 if not provided
             if (sPercentage !== null && sPercentage !== undefined && sPercentage !== "" && sPercentage.trim() !== "") {
                 const iParsed = parseInt(sPercentage.trim(), 10);
@@ -3907,19 +3908,19 @@ sap.ui.define([
             }
 
 
-            // ✅ NEW: Validate project resource limits before employee validation (using shared function)
+            //  NEW: Validate project resource limits before employee validation (using shared function)
             const bProjectValid = await this._validateProjectResourceLimits(sProjectId, aEmployees.length, oModel);
             if (!bProjectValid) {
                 return; // Error popup already shown by validation function
             }
 
-            // ✅ NEW: Validate demand resource limits
+            //  NEW: Validate demand resource limits
             const bDemandValid = await this._validateDemandResourceLimits(iDemandId, aEmployees.length, oModel);
             if (!bDemandValid) {
                 return; // Error popup already shown by validation function
             }
 
-            // ✅ NEW: Validate each employee's allocation percentage before creating
+            //  NEW: Validate each employee's allocation percentage before creating
             const aAllocationData = [];
             const aValidEmployees = [];
             const aInvalidEmployees = [];
@@ -3934,7 +3935,7 @@ sap.ui.define([
                 const iCombinedPercentage = iEmpAllocPercentage + iPercentage;
 
 
-                // ✅ Validate: Check if combined percentage exceeds 100%
+                //  Validate: Check if combined percentage exceeds 100%
                 if (iCombinedPercentage > 100) {
                     aInvalidEmployees.push({
                         name: oEmployee.fullName,
@@ -3949,7 +3950,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ Show warning if some employees cannot be allocated
+            //  Show warning if some employees cannot be allocated
             if (aInvalidEmployees.length > 0) {
                 let sErrorMessage = `Cannot allocate ${aInvalidEmployees.length} employee(s) - allocation would exceed 100%:\n\n`;
                 aInvalidEmployees.forEach((oInvalid) => {
@@ -3980,15 +3981,15 @@ sap.ui.define([
                 }
             }
 
-            // ✅ All employees are valid - create allocations
+            //  All employees are valid - create allocations
             this._createAllocationsForValidEmployees(aValidEmployees, sProjectId, iDemandId, sStartDate, sEndDate, iPercentage, oModel, oResTable, aEmployees);
         },
 
-        // ✅ NEW: Helper function to create allocations for valid employees
+        //  NEW: Helper function to create allocations for valid employees
         _createAllocationsForValidEmployees: function (aValidEmployees, sProjectId, iDemandId, sStartDate, sEndDate, iPercentage, oModel, oResTable, aAllEmployees) {
             const aAllocationData = [];
 
-            // ✅ IMPORTANT: Do NOT update empallocpercentage on frontend
+            //  IMPORTANT: Do NOT update empallocpercentage on frontend
             // The backend's after('CREATE', Allocations) hook will handle it after validation
             // This prevents race condition where validation uses the updated value instead of original
             for (let i = 0; i < aValidEmployees.length; i++) {
@@ -4004,8 +4005,8 @@ sap.ui.define([
                     allocationId: sAllocationId,
                     employeeId: oEmployee.ohrId,
                     projectId: sProjectId,
-                    demandId: iDemandId, // ✅ NEW: Include demandId
-                    // ✅ Only include dates if they have values, otherwise backend will auto-fill from project
+                    demandId: iDemandId, //  NEW: Include demandId
+                    //  Only include dates if they have values, otherwise backend will auto-fill from project
                     ...(sStartDate && sStartDate.trim() !== "" ? { startDate: sStartDate } : {}),
                     ...(sEndDate && sEndDate.trim() !== "" ? { endDate: sEndDate } : {}),
                     allocationPercentage: iPercentage,
@@ -4017,23 +4018,23 @@ sap.ui.define([
             }
 
 
-            // ✅ Use the same function for creating multiple allocations (pass aValidEmployees, not aAllEmployees)
+            //  Use the same function for creating multiple allocations (pass aValidEmployees, not aAllEmployees)
             this._createMultipleAllocationsFromAllocateDialog(aAllocationData, oModel, aValidEmployees, oResTable);
         },
 
-        // ✅ NEW: Dialog close handler
+        //  NEW: Dialog close handler
         onDialogClose: function () {
             if (this._oAllocateDialog) {
                 this._oAllocateDialog.close();
             }
-            // ✅ Clear allocation percentage field
+            //  Clear allocation percentage field
             const oPercentageInput = this.byId("allocationPercentage_allocate");
             if (oPercentageInput) {
                 oPercentageInput.setValue("100");
             }
         },
 
-        // ✅ NEW: Populate selected employees' allocation details in AllocateDialog
+        //  NEW: Populate selected employees' allocation details in AllocateDialog
         _populateSelectedEmployeesAllocations: function () {
             const oVBox = this.byId("selectedEmployeesAllocationVBox");
             if (!oVBox) {
@@ -4078,7 +4079,7 @@ sap.ui.define([
 
             // Fetch allocations for all employees
             const aEmployeeIds = aEmployees.map(e => e.ohrId);
-            // ✅ Use correct entity name "Allocations" and fetch all, then filter in JavaScript (OData V4 compatibility)
+            //  Use correct entity name "Allocations" and fetch all, then filter in JavaScript (OData V4 compatibility)
             const oAllocationBinding = oModel.bindList("/Allocations", null, null, null, {
                 $expand: "to_Project($select=sapPId,projectName),to_Demand($select=demandId,skill,band)"
             });
@@ -4160,7 +4161,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Populate employees allocated to selected project in AllocateDialog
+        //  NEW: Populate employees allocated to selected project in AllocateDialog
         _populateProjectEmployees: function (sProjectId) {
             const oVBox = this.byId("projectEmployeesVBox");
             if (!oVBox) {
@@ -4185,7 +4186,7 @@ sap.ui.define([
             }
 
             // Fetch active allocations for this project
-            // ✅ Use correct entity name "Allocations" and fetch all, then filter in JavaScript (OData V4 compatibility)
+            //  Use correct entity name "Allocations" and fetch all, then filter in JavaScript (OData V4 compatibility)
             const oAllocationBinding = oModel.bindList("/Allocations", null, null, null, {
                 $expand: "to_Employee($select=ohrId,fullName),to_Demand($select=demandId,skill,band)"
             });
@@ -4251,7 +4252,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Helper function to get allocation filter (empallocpercentage <= 95 and status != "Resigned")
+        //  NEW: Helper function to get allocation filter (empallocpercentage <= 95 and status != "Resigned")
         _getAllocationFilter: function () {
             // Filter: empallocpercentage <= 95 AND status != "Resigned"
             const oPercentageFilter = new sap.ui.model.Filter("empallocpercentage", sap.ui.model.FilterOperator.LE, 95);
@@ -4259,7 +4260,7 @@ sap.ui.define([
             return new sap.ui.model.Filter([oPercentageFilter, oStatusFilter], true); // true = AND
         },
 
-        // ✅ NEW: Search handler for Res (Employees) view
+        //  NEW: Search handler for Res (Employees) view
         onResSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Res");
@@ -4271,7 +4272,7 @@ sap.ui.define([
             // Apply search filter to table - always include allocation percentage and status filters
             const oBinding = oTable.getRowBinding && oTable.getRowBinding();
             if (oBinding) {
-                // ✅ NEW: Filter by allocation percentage < 95 and status != "Resigned"
+                //  NEW: Filter by allocation percentage < 95 and status != "Resigned"
                 const aFilters = [this._getAllocationFilter()];
 
                 if (sQuery && sQuery.trim() !== "") {
@@ -4284,7 +4285,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Search handler for Demands view
+        //  NEW: Search handler for Demands view
         onDemandSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Demands");
@@ -4300,7 +4301,7 @@ sap.ui.define([
 
                 // Always include project filter if available
                 if (this._sDemandProjectFilter) {
-                    // ✅ Convert project ID format (P-0006 -> 6) to match CSV data format
+                    //  Convert project ID format (P-0006 -> 6) to match CSV data format
                     let sFilterValue = this._sDemandProjectFilter;
                     if (sFilterValue && sFilterValue.startsWith("P-")) {
                         sFilterValue = sFilterValue.replace(/^P-0*/, ""); // Remove "P-" and leading zeros
@@ -4331,7 +4332,7 @@ sap.ui.define([
 
                 // Always include project filter if available
                 if (this._sDemandProjectFilter) {
-                    // ✅ Convert project ID format (P-0006 -> 6) to match CSV data format
+                    //  Convert project ID format (P-0006 -> 6) to match CSV data format
                     let sFilterValue = this._sDemandProjectFilter;
                     if (sFilterValue && sFilterValue.startsWith("P-")) {
                         sFilterValue = sFilterValue.replace(/^P-0*/, ""); // Remove "P-" and leading zeros
@@ -4348,7 +4349,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Res fragment - Customer change handler (enables Opportunity)
+        //  NEW: Res fragment - Customer change handler (enables Opportunity)
         onResCustomerChange: function (oEvent) {
             const oInput = oEvent.getSource();
             const sValue = oInput.getValue();
@@ -4372,7 +4373,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Res fragment - Opportunity change handler (enables Project)
+        //  NEW: Res fragment - Opportunity change handler (enables Project)
         onResOpportunityChange: function (oEvent) {
             const oInput = oEvent.getSource();
             const sValue = oInput.getValue();
@@ -4393,13 +4394,13 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Res fragment - Project change handler (enables Demand)
+        //  NEW: Res fragment - Project change handler (enables Demand)
         onResProjectChange: function (oEvent) {
             const oInput = oEvent.getSource();
             const sValue = oInput.getValue();
             const sProjectId = oInput.data("selectedId");
 
-            // ✅ CRITICAL: Store project ID for AllocateDialog demand filtering
+            //  CRITICAL: Store project ID for AllocateDialog demand filtering
             if (sProjectId) {
                 this._sAllocateDemandProjectFilter = sProjectId;
             }
@@ -4416,7 +4417,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Res fragment - Opportunity value help (filtered by Customer)
+        //  NEW: Res fragment - Opportunity value help (filtered by Customer)
         onResOpportunityValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const sCustomerId = this.byId("Resinput_Customer")?.data("selectedId");
@@ -4434,7 +4435,7 @@ sap.ui.define([
             this.onOpportunityValueHelpRequest(oEvent);
         },
 
-        // ✅ NEW: Res fragment - Project value help (filtered by Opportunity)
+        //  NEW: Res fragment - Project value help (filtered by Opportunity)
         onResProjectValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const sOppId = this.byId("Resinput_Opportunity")?.data("selectedId");
@@ -4453,7 +4454,7 @@ sap.ui.define([
             sap.m.MessageToast.show("Project value help - filtering by Opportunity: " + sOppId);
         },
 
-        // ✅ NEW: Res fragment - Demand value help (filtered by Project)
+        //  NEW: Res fragment - Demand value help (filtered by Project)
         onResDemandValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const sProjectId = this.byId("Resinput_Project")?.data("selectedId");
@@ -4471,20 +4472,20 @@ sap.ui.define([
             sap.m.MessageToast.show("Demand value help - filtering by Project: " + sProjectId);
         },
 
-        // ✅ REUSABLE: Hard refresh table after CRUD operations to get fresh data from DB
+        //  REUSABLE: Hard refresh table after CRUD operations to get fresh data from DB
         _hardRefreshTable: function (sTableId) {
             const oTable = this.byId(sTableId);
             if (!oTable) {
                 return;
             }
 
-            // ✅ SPECIAL HANDLING: For Demands table, preserve the project filter
+            //  SPECIAL HANDLING: For Demands table, preserve the project filter
             if (sTableId === "Demands" && this._sDemandProjectFilter) {
                 this._refreshDemandsTableWithFilter();
                 return;
             }
 
-            // ✅ STEP 1: Rebind MDC table (most reliable for MDC tables)
+            //  STEP 1: Rebind MDC table (most reliable for MDC tables)
             if (oTable.rebind) {
                 try {
                     oTable.rebind();
@@ -4492,7 +4493,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ STEP 2: Refresh all bindings to force fresh data from backend
+            //  STEP 2: Refresh all bindings to force fresh data from backend
             setTimeout(() => {
                 const oRowBinding = oTable.getRowBinding && oTable.getRowBinding();
                 const oBinding = oTable.getBinding("rows") || oTable.getBinding("items");
@@ -4507,7 +4508,7 @@ sap.ui.define([
             }, 200); // Small delay to ensure batch is committed
         },
 
-        // ✅ NEW: Submit function that handles both Create and Update
+        //  NEW: Submit function that handles both Create and Update
         onSubmitCustomer: function () {
             // -------------------------------
             // ⭐ NEW: Read cascading fields
@@ -4631,7 +4632,7 @@ sap.ui.define([
                             // Success - refresh table and show message
                             MessageToast.show("Customer updated successfully!");
 
-                            // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                            //  CRITICAL: Hard refresh table to get fresh data from DB
                             this._hardRefreshTable("Customers");
 
                             this.onCancelForm(); // Clear form after successful update
@@ -4703,26 +4704,26 @@ sap.ui.define([
                         }
 
 
-                        // ✅ CRITICAL: Set all properties individually to ensure they're queued in batch group
+                        //  CRITICAL: Set all properties individually to ensure they're queued in batch group
                         Object.keys(oCreateEntry).forEach(sKey => {
                             oNewContext.setProperty(sKey, oCreateEntry[sKey]);
                         });
 
-                        // ✅ CRITICAL: Check if batch group has pending changes before submitting
+                        //  CRITICAL: Check if batch group has pending changes before submitting
                         const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
                         // Submit the batch to send to backend
                         oModel.submitBatch("changesGroup")
                             .then(() => {
 
-                                // ✅ CRITICAL: Fetch fresh data from backend (not from UI form)
+                                //  CRITICAL: Fetch fresh data from backend (not from UI form)
                                 if (oNewContext && oNewContext.requestObject) {
                                     oNewContext.requestObject().then(() => {
                                         const oBackendData = oNewContext.getObject();
 
                                         MessageToast.show("Customer created successfully!");
 
-                                        // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                        //  CRITICAL: Hard refresh table to get fresh data from DB
                                         this._hardRefreshTable("Customers");
 
                                         this.onCancelForm(); // Clear form after successful create
@@ -4798,7 +4799,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Initialize Customer ID field with next ID preview
+        //  NEW: Initialize Customer ID field with next ID preview
         _initializeCustomerIdField: function (iRetryCount = 0) {
             const MAX_RETRIES = 5;
             const oCustomerIdInput = this.byId("inputCustomerId");
@@ -4825,7 +4826,7 @@ sap.ui.define([
                     if (!sNextId || sNextId === "C-0001") {
                         const oModel = this.getOwnerComponent().getModel();
                         if (oModel) {
-                            // ✅ FIXED: Use OData V4 bindList instead of oModel.read()
+                            //  FIXED: Use OData V4 bindList instead of oModel.read()
                             const oBinding = oModel.bindList("/Customers", null, [], [], {
                                 "$orderby": "SAPcustId desc",
                                 "$top": "1"
@@ -4881,7 +4882,7 @@ sap.ui.define([
             oCustomerIdInput.setPlaceholder("Auto-generated");
         },
 
-        // ✅ NEW: Search function for Customer table
+        //  NEW: Search function for Customer table
         onCustomerSearch: function (oEvent) {
             // Get search query - liveChange uses "newValue", search event uses "query"
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
@@ -5041,7 +5042,7 @@ sap.ui.define([
         },
 
 
-        // ✅ NEW: Search function for Employee table
+        //  NEW: Search function for Employee table
         onEmployeeSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Employees");
@@ -5251,10 +5252,10 @@ sap.ui.define([
                         });
 
                         oBinding.filter([oCombinedFilter]);
-                        // console.log("✅ Master demand search filter applied (case-insensitive):", sQueryTrimmed);
+                        // console.log(" Master demand search filter applied (case-insensitive):", sQueryTrimmed);
                     } else {
                         oBinding.filter([]);
-                        // console.log("✅ Master demand search filter cleared");
+                        // console.log(" Master demand search filter cleared");
                     }
                 } catch (e) {
                     console.error("Error applying master demand search filter:", e);
@@ -5278,7 +5279,7 @@ sap.ui.define([
             }
         },
         //newly added ressearch
-        // ✅ NEW: Search function for Employee table
+        //  NEW: Search function for Employee table
         onResSearchField: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Res");
@@ -5397,7 +5398,7 @@ sap.ui.define([
 
 
 
-        // ✅ NEW: Search function for Opportunity table
+        //  NEW: Search function for Opportunity table
         onOpportunitySearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Opportunities");
@@ -5514,7 +5515,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Search function for Project table
+        //  NEW: Search function for Project table
         onProjectSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Projects");
@@ -5619,7 +5620,7 @@ sap.ui.define([
             }
         },
         //for allocation screen project search
-        // ✅ NEW: Search function for Project table
+        //  NEW: Search function for Project table
         onAllocationSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oTable = this.byId("Allocations");
@@ -5724,7 +5725,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Cancel function to clear form and deselect table row
+        //  NEW: Cancel function to clear form and deselect table row
         onCancelForm: function () {
             // Get table reference
             const oTable = this.byId("Customers");
@@ -5741,12 +5742,12 @@ sap.ui.define([
                 }
             }
 
-            // ✅ CRITICAL: Disable Edit button when form is cleared (no row selected)
+            //  CRITICAL: Disable Edit button when form is cleared (no row selected)
             this.byId("editButton_cus")?.setEnabled(false);
         },
 
 
-        // ✅ NEW: Submit function for Employee (handles both Create and Update)
+        //  NEW: Submit function for Employee (handles both Create and Update)
         // onSubmitEmployee: function () {
         //     const sOHRId = this.byId("inputOHRId_emp").getValue(),
         //         sFullName = this.byId("inputFullName_emp").getValue(),
@@ -5756,10 +5757,10 @@ sap.ui.define([
         //         sUnit = this.byId("inputUnit_emp").getSelectedKey(),
         //         sDoJ = this.byId("inputDoJ_emp").getValue(),
         //         sBand = this.byId("inputBand_emp").getSelectedKey(),
-        //         sRole = this.byId("inputRole_emp").getSelectedKey(), // ✅ FIXED: Role is a Select control
+        //         sRole = this.byId("inputRole_emp").getSelectedKey(), //  FIXED: Role is a Select control
         //         sLocation = this.byId("inputLocation_emp").getSelectedKey(),
-        //         sCountry = this.byId("inputCountry_emp").getSelectedKey(),  // ✅ NEW: Country field
-        //         sCity = this.byId("inputCity_emp").getSelectedKey(),  // ✅ CHANGED: Now uses getSelectedKey
+        //         sCountry = this.byId("inputCountry_emp").getSelectedKey(),  //  NEW: Country field
+        //         sCity = this.byId("inputCity_emp").getSelectedKey(),  //  CHANGED: Now uses getSelectedKey
         //         // Get Supervisor OHR ID from data attribute (not displayed name)
         //         sSupervisor = (this.byId("inputSupervisor_emp")?.data("selectedId")) || this.byId("inputSupervisor_emp")?.getValue() || "",
         //         // Get selected skill names from MultiComboBox and join as comma-separated string
@@ -5817,7 +5818,7 @@ sap.ui.define([
         //             "band": sBand || "",
         //             "role": sRole || "",
         //             "location": sLocation || "",
-        //             "country": sCountry || "",  // ✅ NEW: Country field
+        //             "country": sCountry || "",  //  NEW: Country field
         //             "city": sCity || "",
         //             "supervisorOHR": sSupervisor || "",
         //             "skills": sSkills || "",  // Store skills as comma-separated string
@@ -5846,7 +5847,7 @@ sap.ui.define([
         //                 .then(() => {
         //                     MessageToast.show("Employee updated successfully!");
 
-        //                     // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+        //                     //  CRITICAL: Hard refresh table to get fresh data from DB
         //                     this._hardRefreshTable("Employees");
 
         //                     this.onCancelEmployeeForm();
@@ -5889,7 +5890,7 @@ sap.ui.define([
         //             "band": sBand || "",
         //             "role": sRole || "",
         //             "location": sLocation || "",
-        //             "country": sCountry || "",  // ✅ NEW: Country field
+        //             "country": sCountry || "",  //  NEW: Country field
         //             "city": sCity || "",
         //             "supervisorOHR": sSupervisor || "",
         //             "skills": sSkills || "",  // Store skills as comma-separated string
@@ -5915,7 +5916,7 @@ sap.ui.define([
         //                     .then(() => {
         //                         MessageToast.show("Employee created successfully!");
 
-        //                         // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+        //                         //  CRITICAL: Hard refresh table to get fresh data from DB
         //                         this._hardRefreshTable("Employees");
 
         //                         this.onCancelEmployeeForm();
@@ -5953,10 +5954,10 @@ sap.ui.define([
                 sUnit = this.byId("inputUnit_emp").getSelectedKey(),
                 sDoJ = this.byId("inputDoJ_emp").getValue(),
                 sBand = this.byId("inputBand_emp").getSelectedKey(),
-                sRole = this.byId("inputRole_emp").getSelectedKey(), // ✅ FIXED: Role is a Select control
+                sRole = this.byId("inputRole_emp").getSelectedKey(), //  FIXED: Role is a Select control
                 sLocation = this.byId("inputLocation_emp").getSelectedKey(),
-                sCountry = this.byId("inputCountry_emp").getSelectedKey(),  // ✅ NEW: Country field
-                sCity = this.byId("inputCity_emp").getSelectedKey(),  // ✅ CHANGED: Now uses getSelectedKey
+                sCountry = this.byId("inputCountry_emp").getSelectedKey(),  //  NEW: Country field
+                sCity = this.byId("inputCity_emp").getSelectedKey(),  //  CHANGED: Now uses getSelectedKey
                 // Get Supervisor OHR ID from data attribute (not displayed name)
                 sSupervisor = (this.byId("inputSupervisor_emp")?.data("selectedId")) || this.byId("inputSupervisor_emp")?.getValue() || "",
                 // Get selected skill names from MultiComboBox and join as comma-separated string
@@ -5967,6 +5968,11 @@ sap.ui.define([
             const oTable = this.byId("Employees");
             const aContexts = oTable.getRowBinding().getCurrentContexts();
 
+            if (!sOHRId || sOHRId.trim() === "") {
+                sap.m.MessageBox.error("OHR ID is required for new employees!");
+                return;
+            }
+            
             if (!sFullName || sFullName.trim() === "") {
                 sap.m.MessageBox.error("Full Name is required!");
                 return;
@@ -5977,6 +5983,18 @@ sap.ui.define([
                 const sEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!sEmailRegex.test(sMailId.trim())) {
                     sap.m.MessageBox.error("Please enter a valid email address!");
+                    return;
+                }
+            }
+
+            //  Validate date range (startDate <= endDate)
+            if (sDoJ && sLWD && sDoJ.trim() === "" && sLWD.trim() === "") {
+                const oStartDate = new Date(sDoJ);
+                const oEndDate = new Date(sLWD);
+                if (oStartDate > oEndDate) {
+                    sap.m.MessageBox.error(`Joining Date (${sDoJ}) cannot be later than Last Working Day (${sLWD}).`, {
+                        title: "Invalid Date Range"
+                    });
                     return;
                 }
             }
@@ -6001,7 +6019,7 @@ sap.ui.define([
                     "band": sBand || "",
                     "role": sRole || "",
                     "location": sLocation || "",
-                    "country": sCountry || "",  // ✅ NEW: Country field
+                    "country": sCountry || "",  //  NEW: Country field
                     "city": sCity || "",
                     "supervisorOHR": sSupervisor || "",
                     "skills": sSkills || "",  // Store skills as comma-separated string
@@ -6030,7 +6048,7 @@ sap.ui.define([
                         .then(() => {
                             MessageToast.show("Employee updated successfully!");
 
-                            // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                            //  CRITICAL: Hard refresh table to get fresh data from DB
                             this._hardRefreshTable("Employees");
 
                             this.onCancelEmployeeForm();
@@ -6085,7 +6103,7 @@ sap.ui.define([
                     "band": sBand || "",
                     "role": sRole || "",
                     "location": sLocation || "",
-                    "country": sCountry || "",  // ✅ NEW: Country field
+                    "country": sCountry || "",  //  NEW: Country field
                     "city": sCity || "",
                     "supervisorOHR": sSupervisor || "",
                     "skills": sSkills || "",  // Store skills as comma-separated string
@@ -6111,7 +6129,7 @@ sap.ui.define([
                             .then(() => {
                                 MessageToast.show("Employee created successfully!");
 
-                                // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                //  CRITICAL: Hard refresh table to get fresh data from DB
                                 this._hardRefreshTable("Employees");
 
                                 this.onCancelEmployeeForm();
@@ -6146,7 +6164,7 @@ sap.ui.define([
                 success: (oData) => {
                     MessageToast.show("Employee created successfully!");
 
-                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                    //  CRITICAL: Hard refresh table to get fresh data from DB
                     this._hardRefreshTable("Employees");
 
                     this.onCancelEmployeeForm();
@@ -6172,7 +6190,7 @@ sap.ui.define([
         //         aSelectedSkills = this.byId("inputSkills")?.getSelectedKeys() || [],
         //         sSkills = aSelectedSkills.join(", "),
         //         sBand = this.byId("inputBand").getSelectedKey(),
-        //         // ✅ CHANGED: Now uses getSelectedKey
+        //         //  CHANGED: Now uses getSelectedKey
         //         // Get Supervisor OHR ID from data attribute (not displayed name)
         //         sSapPId = (this.byId("inputProject")?.data("selectedId")) || this.byId("inputProject")?.getValue() || "",
         //         // Get selected skill names from MultiComboBox and join as comma-separated string
@@ -6200,7 +6218,7 @@ sap.ui.define([
         //             "band": sBand || "",
         //             "sapPId": sSapPId || "",
         //             "quantity": sQuantity,
-        //             "allocatedCount": sAllocatedCount,     // ✅ NEW: Calculated - count of allocations matching this demand's skill
+        //             "allocatedCount": sAllocatedCount,     //  NEW: Calculated - count of allocations matching this demand's skill
         //             "remaining": sRemainingCount
         //         };
         //         console.log(oUpdateEntry, "updated entry");
@@ -6226,7 +6244,7 @@ sap.ui.define([
         //                 .then(() => {
         //                     // MessageToast.show("Demand updated successfully!");
 
-        //                     // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+        //                     //  CRITICAL: Hard refresh table to get fresh data from DB
         //                     this._hardRefreshTable("MasterDemands");
 
         //                     this.onCancelMasterDataForm();
@@ -6264,7 +6282,7 @@ sap.ui.define([
         //             "band": sBand || "",
         //             "sapPId": sSapPId || "",
         //             "quantity": sQuantity,
-        //             "allocatedCount": sAllocatedCount,     // ✅ NEW: Calculated - count of allocations matching this demand's skill
+        //             "allocatedCount": sAllocatedCount,     //  NEW: Calculated - count of allocations matching this demand's skill
         //             "remaining": sRemainingCount
         //         };
 
@@ -6289,7 +6307,7 @@ sap.ui.define([
         //                         console.log("Demand created successfully!");
         //                         MessageToast.show("Demand created successfully!");
 
-        //                         // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+        //                         //  CRITICAL: Hard refresh table to get fresh data from DB
         //                         this._hardRefreshTable("MasterDemands");
 
         //                         this.onCancelMasterDataForm();
@@ -6300,7 +6318,7 @@ sap.ui.define([
         //                             try {
         //                                 const oCreatedData = oNewContext.getObject();
         //                                 if (oCreatedData && oCreatedData.fullName === oCreateEntry.fullName) {
-        //                                     console.log("✅ Create verified successful");
+        //                                     console.log(" Create verified successful");
         //                                     MessageToast.show("Demand created successfully!");
         //                                     oBinding.refresh();
         //                                     this.onCancelMasterDataForm();
@@ -6329,7 +6347,7 @@ sap.ui.define([
         //             console.log("Demand created successfully (direct):", oData);
         //             MessageToast.show("Demand created successfully!");
 
-        //             // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+        //             //  CRITICAL: Hard refresh table to get fresh data from DB
         //             this._hardRefreshTable("MasterDemands");
 
         //             this.onCancelMasterDataForm();
@@ -6365,7 +6383,7 @@ sap.ui.define([
             const oModel = oTable.getModel();
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ Common error handler
+            //  Common error handler
             const showError = (oError, sDefaultMsg) => {
                 let sErrorMessage = sDefaultMsg || "Operation failed. Please check your input.";
                 try {
@@ -6383,7 +6401,7 @@ sap.ui.define([
             };
 
             if (aSelectedContexts && aSelectedContexts.length > 0) {
-                // ✅ UPDATE MODE
+                //  UPDATE MODE
                 const oContext = aSelectedContexts[0];
                 const oUpdateEntry = {
                     "demandId": sDemandId,
@@ -6421,7 +6439,7 @@ sap.ui.define([
                 }
 
             } else {
-                // ✅ CREATE MODE
+                //  CREATE MODE
 
                 const oCreateEntry = {
                     "demandId": sDemandId,
@@ -6476,7 +6494,7 @@ sap.ui.define([
                     // console.log("Demand created successfully (direct):", oData);
                     MessageToast.show("Demand created successfully!");
 
-                    // ✅ Refresh table to get latest data
+                    //  Refresh table to get latest data
                     this._hardRefreshTable("MasterDemands");
                     this.onCancelMasterDataForm();
                 },
@@ -6486,7 +6504,7 @@ sap.ui.define([
                     // Default error message
                     let sErrorMessage = "Failed to create demand. Please check the input or try again.";
 
-                    // ✅ Parse CAP error response if available
+                    //  Parse CAP error response if available
                     try {
                         if (oError && oError.responseText) {
                             const oParsed = JSON.parse(oError.responseText);
@@ -6496,7 +6514,7 @@ sap.ui.define([
                         console.warn("Error parsing backend response:", e);
                     }
 
-                    // ✅ Show error popup with details
+                    //  Show error popup with details
                     sap.m.MessageBox.error(sErrorMessage, {
                         title: "Create Error",
                         details: oError.responseText, // Optional: full backend response
@@ -6507,7 +6525,7 @@ sap.ui.define([
         },
 
 
-        // ✅ NEW: Submit function for Opportunity (handles both Create and Update)
+        //  NEW: Submit function for Opportunity (handles both Create and Update)
         onSubmitOpportunity: function () {
             const sSapOppId = this.byId("inputSapOppId_oppr").getValue(),
                 sSfdcOppId = this.byId("inputSfdcOppId_oppr").getValue(),
@@ -6538,7 +6556,7 @@ sap.ui.define([
             //     return;
             // }
 
-            // ✅ Validation for mandatory fields
+            //  Validation for mandatory fields
             if (!sCustomerId || sCustomerId.trim() === "") {
                 sap.m.MessageBox.error("Customer is required!");
                 return;
@@ -6586,6 +6604,24 @@ sap.ui.define([
                 return;
             }
 
+            //  Validate dates
+            if (!sExpectedStart || !sExpectedEnd || sExpectedStart.trim() === "" || sExpectedEnd.trim() === "") {
+                sap.m.MessageBox.error("Please select both Expected Start Date and Expected End Date for the allocation.", {
+                    title: "Dates Required"
+                });
+                return;
+            }
+
+            //  Validate date range (startDate <= endDate)
+            const oStartDate = new Date(sExpectedStart);
+            const oEndDate = new Date(sExpectedEnd);
+            if (oStartDate > oEndDate) {
+                sap.m.MessageBox.error(`Expected Start Date (${sExpectedStart}) cannot be later than Expected End Date (${sExpectedEnd}).`, {
+                    title: "Invalid Date Range"
+                });
+                return;
+            }
+
             if (!sTCV || sTCV.trim() === "") {
                 sap.m.MessageBox.error("TCV is required!");
                 return;
@@ -6615,8 +6651,8 @@ sap.ui.define([
                     "Stage": sStage || "",
                     "salesSPOC": sSalesSPOC || "",
                     "deliverySPOC": sDeliverySPOC || "",
-                    "expectedStart": (sExpectedStart && sExpectedStart.trim() !== "") ? sExpectedStart : null,  // ✅ FIXED: Use null instead of empty string for Date
-                    "expectedEnd": (sExpectedEnd && sExpectedEnd.trim() !== "") ? sExpectedEnd : null,  // ✅ FIXED: Use null instead of empty string for Date
+                    "expectedStart": (sExpectedStart && sExpectedStart.trim() !== "") ? sExpectedStart : null,  //  FIXED: Use null instead of empty string for Date
+                    "expectedEnd": (sExpectedEnd && sExpectedEnd.trim() !== "") ? sExpectedEnd : null,  //  FIXED: Use null instead of empty string for Date
                     "tcv": sTCV ? parseFloat(sTCV) : 0,
                     "currency": sCurrency || "",
                     "customerId": sCustomerId || ""
@@ -6633,14 +6669,14 @@ sap.ui.define([
 
                     oModel.submitBatch("changesGroup")
                         .then(() => {
-                            // ✅ CRITICAL: Fetch fresh data from backend (not from UI form)
+                            //  CRITICAL: Fetch fresh data from backend (not from UI form)
                             if (oContext && oContext.requestObject) {
                                 oContext.requestObject().then(() => {
                                     const oBackendData = oContext.getObject();
 
                                     MessageToast.show("Opportunity updated successfully!");
 
-                                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                    //  CRITICAL: Hard refresh table to get fresh data from DB
                                     this._hardRefreshTable("Opportunities");
 
                                     this.onCancelOpportunityForm();
@@ -6663,7 +6699,7 @@ sap.ui.define([
                                     const oCurrentData = oContext.getObject();
                                     if (oCurrentData && oCurrentData.opportunityName === oUpdateEntry.opportunityName) {
                                         MessageToast.show("Opportunity updated successfully!");
-                                        // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                        //  CRITICAL: Hard refresh table to get fresh data from DB
                                         this._hardRefreshTable("Opportunities");
                                         this.onCancelOpportunityForm();
                                     } else {
@@ -6685,8 +6721,8 @@ sap.ui.define([
                     "Stage": sStage || "",
                     "salesSPOC": sSalesSPOC || "",
                     "deliverySPOC": sDeliverySPOC || "",
-                    "expectedStart": (sExpectedStart && sExpectedStart.trim() !== "") ? sExpectedStart : null,  // ✅ FIXED: Use null instead of empty string for Date
-                    "expectedEnd": (sExpectedEnd && sExpectedEnd.trim() !== "") ? sExpectedEnd : null,  // ✅ FIXED: Use null instead of empty string for Date
+                    "expectedStart": (sExpectedStart && sExpectedStart.trim() !== "") ? sExpectedStart : null,  //  FIXED: Use null instead of empty string for Date
+                    "expectedEnd": (sExpectedEnd && sExpectedEnd.trim() !== "") ? sExpectedEnd : null,  //  FIXED: Use null instead of empty string for Date
                     "tcv": sTCV ? parseFloat(sTCV) : 0,
                     "currency": sCurrency || "",
                     "customerId": sCustomerId || ""
@@ -6710,26 +6746,26 @@ sap.ui.define([
                         }
 
 
-                        // ✅ CRITICAL: Set all properties individually to ensure they're queued in batch group
+                        //  CRITICAL: Set all properties individually to ensure they're queued in batch group
                         Object.keys(oCreateEntry).forEach(sKey => {
                             oNewContext.setProperty(sKey, oCreateEntry[sKey]);
                         });
 
-                        // ✅ CRITICAL: Check if batch group has pending changes before submitting
+                        //  CRITICAL: Check if batch group has pending changes before submitting
                         const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
                         // Submit the batch to send to backend - EXACT same as Customer
                         oModel.submitBatch("changesGroup")
                             .then(() => {
 
-                                // ✅ CRITICAL: Fetch fresh data from backend (not from UI form)
+                                //  CRITICAL: Fetch fresh data from backend (not from UI form)
                                 if (oNewContext && oNewContext.requestObject) {
                                     oNewContext.requestObject().then(() => {
                                         const oBackendData = oNewContext.getObject();
 
                                         MessageToast.show("Opportunity created successfully!");
 
-                                        // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                        //  CRITICAL: Hard refresh table to get fresh data from DB
                                         this._hardRefreshTable("Opportunities");
 
                                         this.onCancelOpportunityForm(); // Clear form after successful create
@@ -6784,7 +6820,7 @@ sap.ui.define([
                 success: (oData) => {
                     MessageToast.show("Opportunity created successfully!");
 
-                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                    //  CRITICAL: Hard refresh table to get fresh data from DB
                     this._hardRefreshTable("Opportunities");
 
                     this.onCancelOpportunityForm();
@@ -6804,7 +6840,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Cancel function for Opportunity form
+        //  NEW: Cancel function for Opportunity form
         onCancelOpportunityForm: function () {
             // Get table reference for ID generation
             const oTable = this.byId("Opportunities");
@@ -6846,11 +6882,11 @@ sap.ui.define([
                 }
             }
 
-            // ✅ CRITICAL: Disable Edit button when form is cleared (no row selected)
+            //  CRITICAL: Disable Edit button when form is cleared (no row selected)
             this.byId("editButton_oppr")?.setEnabled(false);
         },
 
-        // ✅ NEW: Initialize Opportunity ID field with next ID preview
+        //  NEW: Initialize Opportunity ID field with next ID preview
         _initializeOpportunityIdField: function (iRetryCount = 0) {
             const MAX_RETRIES = 5;
             const oOppIdInput = this.byId("inputSapOppId_oppr");
@@ -6873,7 +6909,7 @@ sap.ui.define([
                     if (!sNextId || sNextId === "O-0001") {
                         const oModel = this.getOwnerComponent().getModel();
                         if (oModel) {
-                            // ✅ FIXED: Use OData V4 bindList instead of oModel.read()
+                            //  FIXED: Use OData V4 bindList instead of oModel.read()
                             const oBinding = oModel.bindList("/Opportunities", null, [], [], {
                                 "$orderby": "sapOpportunityId desc",
                                 "$top": "1"
@@ -6923,7 +6959,7 @@ sap.ui.define([
             oOppIdInput.setPlaceholder("Auto-generated");
         },
 
-        // ✅ NEW: Submit function for Project (handles both Create and Update)
+        //  NEW: Submit function for Project (handles both Create and Update)
         onSubmitProject: function () {
             const sSapProjId = this.byId("inputSapProjId_proj").getValue(),
                 sSfdcProjId = this.byId("inputSfdcProjId_proj").getValue(),
@@ -6974,6 +7010,16 @@ sap.ui.define([
                 return;
             }
 
+            //  Validate date range (startDate <= endDate)
+            const oStartDate = new Date(sStartDate);
+            const oEndDate = new Date(sEndDate);
+            if (oStartDate > oEndDate) {
+                sap.m.MessageBox.error(`Project Start Date (${sStartDate}) cannot be later than Project End Date (${sEndDate}).`, {
+                    title: "Invalid Date Range"
+                });
+                return;
+            }
+
             const oTable = this.byId("Projects");
             const oModel = oTable.getModel();
 
@@ -6987,8 +7033,8 @@ sap.ui.define([
                 const oUpdateEntry = {
                     "sfdcPId": sSfdcProjId || "",
                     "projectName": sProjectName,
-                    "startDate": (sStartDate && sStartDate.trim() !== "") ? sStartDate : null,  // ✅ FIXED: Use null instead of empty string for Date
-                    "endDate": (sEndDate && sEndDate.trim() !== "") ? sEndDate : null,  // ✅ FIXED: Use null instead of empty string for Date
+                    "startDate": (sStartDate && sStartDate.trim() !== "") ? sStartDate : null,  //  FIXED: Use null instead of empty string for Date
+                    "endDate": (sEndDate && sEndDate.trim() !== "") ? sEndDate : null,  //  FIXED: Use null instead of empty string for Date
                     "gpm": sGPM || "",
                     "projectType": sProjectType || "",
                     "status": sStatus || "",
@@ -7016,14 +7062,14 @@ sap.ui.define([
 
                     oModel.submitBatch("changesGroup")
                         .then(() => {
-                            // ✅ CRITICAL: Fetch fresh data from backend (not from UI form)
+                            //  CRITICAL: Fetch fresh data from backend (not from UI form)
                             if (oContext && oContext.requestObject) {
                                 oContext.requestObject().then(() => {
                                     const oBackendData = oContext.getObject();
 
                                     MessageToast.show("Project updated successfully!");
 
-                                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                    //  CRITICAL: Hard refresh table to get fresh data from DB
                                     this._hardRefreshTable("Projects");
 
                                     this.onCancelProjectForm();
@@ -7046,7 +7092,7 @@ sap.ui.define([
                                     const oCurrentData = oContext.getObject();
                                     if (oCurrentData && oCurrentData.projectName === oUpdateEntry.projectName) {
                                         MessageToast.show("Project updated successfully!");
-                                        // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                        //  CRITICAL: Hard refresh table to get fresh data from DB
                                         this._hardRefreshTable("Projects");
                                         this.onCancelProjectForm();
                                     } else {
@@ -7063,8 +7109,8 @@ sap.ui.define([
                 const oCreateEntry = {
                     "sfdcPId": sSfdcProjId || "",
                     "projectName": sProjectName,
-                    "startDate": (sStartDate && sStartDate.trim() !== "") ? sStartDate : null,  // ✅ FIXED: Use null instead of empty string for Date
-                    "endDate": (sEndDate && sEndDate.trim() !== "") ? sEndDate : null,  // ✅ FIXED: Use null instead of empty string for Date
+                    "startDate": (sStartDate && sStartDate.trim() !== "") ? sStartDate : null,  //  FIXED: Use null instead of empty string for Date
+                    "endDate": (sEndDate && sEndDate.trim() !== "") ? sEndDate : null,  //  FIXED: Use null instead of empty string for Date
                     "gpm": sGPM || "",
                     "projectType": sProjectType || "",
                     "status": sStatus || "",
@@ -7098,26 +7144,26 @@ sap.ui.define([
                         }
 
 
-                        // ✅ CRITICAL: Set all properties individually to ensure they're queued in batch group
+                        //  CRITICAL: Set all properties individually to ensure they're queued in batch group
                         Object.keys(oCreateEntry).forEach(sKey => {
                             oNewContext.setProperty(sKey, oCreateEntry[sKey]);
                         });
 
-                        // ✅ CRITICAL: Check if batch group has pending changes before submitting
+                        //  CRITICAL: Check if batch group has pending changes before submitting
                         const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
                         // Submit the batch to send to backend - EXACT same as Customer
                         oModel.submitBatch("changesGroup")
                             .then(() => {
 
-                                // ✅ CRITICAL: Fetch fresh data from backend (not from UI form)
+                                //  CRITICAL: Fetch fresh data from backend (not from UI form)
                                 if (oNewContext && oNewContext.requestObject) {
                                     oNewContext.requestObject().then(() => {
                                         const oBackendData = oNewContext.getObject();
 
                                         MessageToast.show("Project created successfully!");
 
-                                        // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                                        //  CRITICAL: Hard refresh table to get fresh data from DB
                                         this._hardRefreshTable("Projects");
 
                                         this.onCancelProjectForm(); // Clear form after successful create
@@ -7172,7 +7218,7 @@ sap.ui.define([
                 success: (oData) => {
                     MessageToast.show("Project created successfully!");
 
-                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                    //  CRITICAL: Hard refresh table to get fresh data from DB
                     this._hardRefreshTable("Projects");
 
                     this.onCancelProjectForm();
@@ -7192,7 +7238,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Cancel function for Project form
+        //  NEW: Cancel function for Project form
         onCancelProjectForm: function () {
             // Get table reference for ID generation
             const oTable = this.byId("Projects");
@@ -7206,7 +7252,7 @@ sap.ui.define([
             } catch (e) {
             }
 
-            // ✅ CRITICAL: Clear the model first (form fields are bound to model)
+            //  CRITICAL: Clear the model first (form fields are bound to model)
             let oProjModel = this.getView().getModel("projectModel");
             if (!oProjModel) {
                 oProjModel = new sap.ui.model.json.JSONModel({});
@@ -7251,11 +7297,11 @@ sap.ui.define([
                 }
             }
 
-            // ✅ CRITICAL: Disable Edit button when form is cleared (no row selected)
+            //  CRITICAL: Disable Edit button when form is cleared (no row selected)
             this.byId("editButton_proj")?.setEnabled(false);
         },
 
-        // ✅ NEW: Initialize Project ID field with next ID preview
+        //  NEW: Initialize Project ID field with next ID preview
         _initializeProjectIdField: function (iRetryCount = 0) {
             const MAX_RETRIES = 5;
             const oProjIdInput = this.byId("inputSapProjId_proj");
@@ -7278,7 +7324,7 @@ sap.ui.define([
                     if (!sNextId || sNextId === "P-0001") {
                         const oModel = this.getOwnerComponent().getModel();
                         if (oModel) {
-                            // ✅ FIXED: Use OData V4 bindList instead of oModel.read()
+                            //  FIXED: Use OData V4 bindList instead of oModel.read()
                             const oBinding = oModel.bindList("/Projects", null, [], [], {
                                 "$orderby": "sapPId desc",
                                 "$top": "1"
@@ -7328,27 +7374,27 @@ sap.ui.define([
             oProjIdInput.setPlaceholder("Auto-generated");
         },
 
-        // ✅ NEW: Edit button handlers - populate forms when Edit is clicked
-        // ✅ CRITICAL: Always fetch fresh data from backend with associations expanded
+        //  NEW: Edit button handlers - populate forms when Edit is clicked
+        //  CRITICAL: Always fetch fresh data from backend with associations expanded
         onEditCustomerForm: function () {
             const oTable = this.byId("Customers");
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ CRITICAL: If no selection, clear form to ensure fresh dialog
+            //  CRITICAL: If no selection, clear form to ensure fresh dialog
             if (!aSelectedContexts || aSelectedContexts.length === 0) {
                 this._onCustDialogData([]);
                 sap.m.MessageToast.show("Please select a row to edit.");
                 return;
             }
 
-            // ✅ CRITICAL: Clear form FIRST and wait for it to complete before populating
+            //  CRITICAL: Clear form FIRST and wait for it to complete before populating
             this._onCustDialogData([]);
 
-            // ✅ CRITICAL: Use setTimeout to ensure form is completely cleared before populating
+            //  CRITICAL: Use setTimeout to ensure form is completely cleared before populating
             setTimeout(() => {
                 if (aSelectedContexts && aSelectedContexts.length > 0) {
                     const oContext = aSelectedContexts[0];
-                    // ✅ CRITICAL: Fetch fresh data from backend using requestObject
+                    //  CRITICAL: Fetch fresh data from backend using requestObject
                     if (oContext.requestObject && typeof oContext.requestObject === "function") {
                         oContext.requestObject().then(() => {
                             // After fetching fresh data, populate form
@@ -7369,22 +7415,22 @@ sap.ui.define([
             const oTable = this.byId("Employees");
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ CRITICAL: If no selection, clear form to ensure fresh dialog
+            //  CRITICAL: If no selection, clear form to ensure fresh dialog
             if (!aSelectedContexts || aSelectedContexts.length === 0) {
                 this._onEmpDialogData([]);
                 sap.m.MessageToast.show("Please select a row to edit.");
                 return;
             }
 
-            // ✅ CRITICAL: Clear form FIRST and wait for it to complete before populating
+            //  CRITICAL: Clear form FIRST and wait for it to complete before populating
             this._onEmpDialogData([]);
 
-            // ✅ CRITICAL: Use setTimeout to ensure form is completely cleared before populating
+            //  CRITICAL: Use setTimeout to ensure form is completely cleared before populating
             setTimeout(() => {
                 if (aSelectedContexts && aSelectedContexts.length > 0) {
                     const oContext = aSelectedContexts[0];
                     const oModel = oTable.getModel();
-                    // ✅ CRITICAL: Fetch fresh data from backend - use requestObject with refresh
+                    //  CRITICAL: Fetch fresh data from backend - use requestObject with refresh
                     if (oModel && oContext.getPath) {
                         const sPath = oContext.getPath();
                         // First, refresh the context to get fresh data from backend
@@ -7444,7 +7490,7 @@ sap.ui.define([
             if (aSelectedContexts && aSelectedContexts.length > 0) {
                 const oContext = aSelectedContexts[0];
                 const oModel = oTable.getModel();
-                // ✅ CRITICAL: Fetch fresh data from backend - use requestObject with refresh
+                //  CRITICAL: Fetch fresh data from backend - use requestObject with refresh
                 if (oModel && oContext.getPath) {
                     const sPath = oContext.getPath();
                     // First, refresh the context to get fresh data from backend
@@ -7453,7 +7499,7 @@ sap.ui.define([
                         oContext.requestObject().then(() => {
                             const oObj = oContext.getObject();
                             // console.log(oObj);
-                            // console.log("✅ Employee fresh data from backend:", oObj);
+                            // console.log(" Employee fresh data from backend:", oObj);
 
                             // Now fetch Supervisor association if needed
                             const sSapPId = oObj && oObj.sapPId;
@@ -7506,21 +7552,21 @@ sap.ui.define([
             const oTable = this.byId("Opportunities");
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ CRITICAL: If no selection, clear form to ensure fresh dialog
+            //  CRITICAL: If no selection, clear form to ensure fresh dialog
             if (!aSelectedContexts || aSelectedContexts.length === 0) {
                 this._onOppDialogData([]);
                 sap.m.MessageToast.show("Please select a row to edit.");
                 return;
             }
 
-            // ✅ CRITICAL: Clear form FIRST and wait for it to complete before populating
+            //  CRITICAL: Clear form FIRST and wait for it to complete before populating
             this._onOppDialogData([]);
 
-            // ✅ CRITICAL: Use setTimeout to ensure form is completely cleared before populating
+            //  CRITICAL: Use setTimeout to ensure form is completely cleared before populating
             setTimeout(() => {
                 if (aSelectedContexts && aSelectedContexts.length > 0) {
                     const oContext = aSelectedContexts[0];
-                    // ✅ CRITICAL: Fetch fresh data from backend - use requestObject
+                    //  CRITICAL: Fetch fresh data from backend - use requestObject
                     if (oContext.requestObject && typeof oContext.requestObject === "function") {
                         // Request fresh data from backend
                         oContext.requestObject().then(() => {
@@ -7542,22 +7588,22 @@ sap.ui.define([
             const oTable = this.byId("Projects");
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ CRITICAL: If no selection, clear form to ensure fresh dialog
+            //  CRITICAL: If no selection, clear form to ensure fresh dialog
             if (!aSelectedContexts || aSelectedContexts.length === 0) {
                 this._onProjDialogData([]);
                 sap.m.MessageToast.show("Please select a row to edit.");
                 return;
             }
 
-            // ✅ CRITICAL: Clear form FIRST and wait for it to complete before populating
+            //  CRITICAL: Clear form FIRST and wait for it to complete before populating
             this._onProjDialogData([]);
 
-            // ✅ CRITICAL: Use setTimeout to ensure form is completely cleared before populating
+            //  CRITICAL: Use setTimeout to ensure form is completely cleared before populating
             setTimeout(() => {
                 if (aSelectedContexts && aSelectedContexts.length > 0) {
                     const oContext = aSelectedContexts[0];
                     const oModel = oTable.getModel();
-                    // ✅ CRITICAL: Fetch fresh data from backend - use requestObject with refresh
+                    //  CRITICAL: Fetch fresh data from backend - use requestObject with refresh
                     if (oModel && oContext.getPath) {
                         const sPath = oContext.getPath();
                         // First, refresh the context to get fresh data from backend
@@ -7634,9 +7680,9 @@ sap.ui.define([
             }, 50); // Small delay to ensure clear completes
         },
 
-        // ✅ NEW: Submit function for Demand (handles both Create and Update)
+        //  NEW: Submit function for Demand (handles both Create and Update)
         onSubmitDemand: function () {
-            // ✅ CRITICAL: Always use the stored project ID from controller or model
+            //  CRITICAL: Always use the stored project ID from controller or model
             // Priority: 1. _sSelectedProjectId (stored when navigating from Projects)
             //           2. Model property /sapPId
             // Project field removed from form, so we get ID from controller/model only
@@ -7676,7 +7722,7 @@ sap.ui.define([
             const oTable = this.byId("Demands");
             const oModel = oTable.getModel();
 
-            // ✅ UI VALIDATION: Check if total demand quantities exceed requiredResources
+            //  UI VALIDATION: Check if total demand quantities exceed requiredResources
             // Get project to check requiredResources
             const oProjectsBinding = oModel.bindList("/Projects");
             oProjectsBinding.attachEventOnce("dataReceived", function () {
@@ -7736,7 +7782,7 @@ sap.ui.define([
             oProjectsBinding.getContexts(); // Trigger data load
         },
 
-        // ✅ Helper function to proceed with demand submit after validation
+        //  Helper function to proceed with demand submit after validation
         _proceedWithDemandSubmit: function (sSapPId, sBand, sQuantity, sSkill, oTable, oModel) {
             // Check if a row is selected (Update mode)
             const aSelectedContexts = oTable.getSelectedContexts();
@@ -7803,7 +7849,7 @@ sap.ui.define([
                 }
             } else {
                 // CREATE MODE
-                // ✅ Don't include demandId - it will be auto-generated by the backend
+                //  Don't include demandId - it will be auto-generated by the backend
                 const oCreateEntry = {
                     "skill": sSkill || "",
                     "band": sBand || "",
@@ -7811,7 +7857,7 @@ sap.ui.define([
                     "quantity": sQuantity ? parseInt(sQuantity, 10) : 0
                 };
 
-                // ✅ CRITICAL: Remove demandId if it exists (shouldn't, but just in case)
+                //  CRITICAL: Remove demandId if it exists (shouldn't, but just in case)
                 // Also ensure quantity is a number, not string
                 delete oCreateEntry.demandId;
                 if (oCreateEntry.quantity && typeof oCreateEntry.quantity === 'string') {
@@ -7836,20 +7882,20 @@ sap.ui.define([
                         }
 
 
-                        // ✅ CRITICAL: Set all properties individually to ensure they're queued in batch group
+                        //  CRITICAL: Set all properties individually to ensure they're queued in batch group
                         Object.keys(oCreateEntry).forEach(sKey => {
                             oNewContext.setProperty(sKey, oCreateEntry[sKey]);
                         });
 
-                        // ✅ CRITICAL: Check if batch group has pending changes before submitting
+                        //  CRITICAL: Check if batch group has pending changes before submitting
                         const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
                         // Submit the batch to send to backend
                         oModel.submitBatch("changesGroup")
                             .then((oResponse) => {
-                                // ✅ CRITICAL: Check for errors in batch response
+                                //  CRITICAL: Check for errors in batch response
 
-                                // ✅ Check if batch response contains errors
+                                //  Check if batch response contains errors
                                 let bHasError = false;
                                 let sErrorMessage = "";
 
@@ -7902,7 +7948,7 @@ sap.ui.define([
                                     }
                                 }
 
-                                // ✅ If error found, remove the invalid row from table and show error
+                                //  If error found, remove the invalid row from table and show error
                                 if (bHasError) {
 
                                     // Remove the invalid context from the table
@@ -7921,7 +7967,7 @@ sap.ui.define([
                                     return;
                                 }
 
-                                // ✅ No errors - verify the context was actually created successfully
+                                //  No errors - verify the context was actually created successfully
                                 if (oNewContext && oNewContext.getProperty && oNewContext.getProperty("skill")) {
 
                                     if (oNewContext.requestObject) {
@@ -7961,7 +8007,7 @@ sap.ui.define([
                             })
                             .catch((oError) => {
 
-                                // ✅ Remove invalid context from table
+                                //  Remove invalid context from table
                                 if (oNewContext && oNewContext.delete) {
                                     try {
                                         oNewContext.delete();
@@ -8014,7 +8060,7 @@ sap.ui.define([
                 success: (oData) => {
                     MessageToast.show("Demand created successfully!");
 
-                    // ✅ CRITICAL: Hard refresh table to get fresh data from DB
+                    //  CRITICAL: Hard refresh table to get fresh data from DB
                     this._hardRefreshTable("Demands");
 
                     this.onCancelDemandForm();
@@ -8034,7 +8080,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ NEW: Cancel function for Demand form
+        //  NEW: Cancel function for Demand form
         onCancelDemandForm: function () {
             // Clear the model first (form fields are bound to model)
             let oDemandModel = this.getView().getModel("demandModel");
@@ -8043,7 +8089,7 @@ sap.ui.define([
                 this.getView().setModel(oDemandModel, "demandModel");
             }
 
-            // ✅ Keep the pre-selected project ID (don't clear it)
+            //  Keep the pre-selected project ID (don't clear it)
             const sPreSelectedProjectId = this._sSelectedProjectId || "";
             const sPreSelectedProjectName = this._sSelectedProjectName || "";
 
@@ -8057,9 +8103,9 @@ sap.ui.define([
             });
 
             // Also clear controls directly
-            // ✅ Removed Demand ID field - it's auto-generated by backend
+            //  Removed Demand ID field - it's auto-generated by backend
 
-            // ✅ Project field removed from form - project is pre-selected from navigation
+            //  Project field removed from form - project is pre-selected from navigation
             // The project ID is stored in the model and controller, but not displayed in form
 
             this.byId("inputSkill_demand")?.removeAllSelectedItems();
@@ -8079,22 +8125,22 @@ sap.ui.define([
             this.byId("editButton_demand")?.setEnabled(false);
         },
 
-        // ✅ NEW: Edit function for Demand form
+        //  NEW: Edit function for Demand form
         onEditDemandForm: function () {
             const oTable = this.byId("Demands");
             const aSelectedContexts = oTable.getSelectedContexts();
 
-            // ✅ CRITICAL: If no selection, clear form to ensure fresh dialog
+            //  CRITICAL: If no selection, clear form to ensure fresh dialog
             if (!aSelectedContexts || aSelectedContexts.length === 0) {
                 this._onDemandDialogData([]);
                 sap.m.MessageToast.show("Please select a row to edit.");
                 return;
             }
 
-            // ✅ CRITICAL: Clear form FIRST and wait for it to complete before populating
+            //  CRITICAL: Clear form FIRST and wait for it to complete before populating
             this._onDemandDialogData([]);
 
-            // ✅ CRITICAL: Use setTimeout to ensure form is completely cleared before populating
+            //  CRITICAL: Use setTimeout to ensure form is completely cleared before populating
             setTimeout(() => {
                 if (aSelectedContexts && aSelectedContexts.length > 0) {
                     const oContext = aSelectedContexts[0];
@@ -8143,7 +8189,7 @@ sap.ui.define([
             }, 50); // Small delay to ensure clear completes
         },
 
-        // ✅ NEW: Cancel function for Employee form
+        //  NEW: Cancel function for Employee form
         onCancelEmployeeForm: function () {
             // Clear all form fields
             this.byId("inputOHRId_emp")?.setValue("");
@@ -8167,8 +8213,8 @@ sap.ui.define([
                 });
             }
             this.byId("inputLocation_emp")?.setValue("");
-            this.byId("inputCountry_emp")?.setSelectedKey("");  // ✅ NEW: Clear country
-            this.byId("inputCity_emp")?.setSelectedKey("");  // ✅ CHANGED: Now uses setSelectedKey
+            this.byId("inputCountry_emp")?.setSelectedKey("");  //  NEW: Clear country
+            this.byId("inputCity_emp")?.setSelectedKey("");  //  CHANGED: Now uses setSelectedKey
             this.byId("inputSupervisor_emp")?.setValue("");
             this.byId("inputSupervisor_emp")?.data("selectedId", "");
             this.byId("inputSkills_emp")?.removeAllSelectedItems();
@@ -8187,7 +8233,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ CRITICAL: Disable Edit button when form is cleared (no row selected)
+            //  CRITICAL: Disable Edit button when form is cleared (no row selected)
             this.byId("editButton_emp")?.setEnabled(false);
         },
         onCancelMasterDataForm: function () {
@@ -8213,7 +8259,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ Disable Edit button when form is cleared
+            //  Disable Edit button when form is cleared
             this.byId("editButton_demand")?.setEnabled(false);
         },
 
@@ -8254,7 +8300,7 @@ sap.ui.define([
         onEditPress: CustomUtility.prototype.onEditPress,
         onSaveButtonPress: CustomUtility.prototype.onSaveButtonPress,
         onCancelButtonPress: CustomUtility.prototype.onCancelButtonPress,
-        _performCancelOperation: CustomUtility.prototype._performCancelOperation, // ✅ EXPOSED: For cancel button to work
+        _performCancelOperation: CustomUtility.prototype._performCancelOperation, //  EXPOSED: For cancel button to work
         onAdd: CustomUtility.prototype.onAdd,
         _createEmptyRowData: CustomUtility.prototype._createEmptyRowData,
         _resolveContextByPath: CustomUtility.prototype._resolveContextByPath,
@@ -8263,9 +8309,9 @@ sap.ui.define([
         _generateNextIdFromBinding: CustomUtility.prototype._generateNextIdFromBinding,
         onFilterSearch: CustomUtility.prototype.onFilterSearch,
 
-        // ✅ REMOVED: onFilterBarClear function - Clear button removed from all FilterBars
+        //  REMOVED: onFilterBarClear function - Clear button removed from all FilterBars
 
-        // ✅ Load all home screen counts dynamically
+        //  Load all home screen counts dynamically
         // _loadHomeCounts: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8286,7 +8332,7 @@ sap.ui.define([
         //     }
         // },
 
-        // ✅ Load Total Head Count (all employees excluding Resigned)
+        //  Load Total Head Count (all employees excluding Resigned)
         // _loadTotalHeadCount: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8315,7 +8361,7 @@ sap.ui.define([
         //     }
         // },
 
-        // ✅ Load Allocated Count (employees with status='Allocated')
+        //  Load Allocated Count (employees with status='Allocated')
         // _loadAllocatedCount: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8342,7 +8388,7 @@ sap.ui.define([
         //     }
         // },
 
-        // ✅ Load Pre Allocated Count (employees with status='Pre Allocated')
+        //  Load Pre Allocated Count (employees with status='Pre Allocated')
         // _loadPreAllocatedCount: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8350,7 +8396,7 @@ sap.ui.define([
         //     }
 
         //     try {
-        //         // ✅ Fetch all employees and filter in JavaScript (OData V4 compatibility)
+        //         //  Fetch all employees and filter in JavaScript (OData V4 compatibility)
         //         const oListBinding = oModel.bindList("/Employees", null, null, null);
 
         //         const aContexts = await oListBinding.requestContexts(0, 10000);
@@ -8367,7 +8413,7 @@ sap.ui.define([
         //     }
         // },
 
-        // ✅ Load Unproductive Bench Count (employees with status='Unproductive Bench')
+        //  Load Unproductive Bench Count (employees with status='Unproductive Bench')
         // _loadUnproductiveBenchCount: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8375,7 +8421,7 @@ sap.ui.define([
         //     }
 
         //     try {
-        //         // ✅ Fetch all employees and filter in JavaScript (OData V4 compatibility)
+        //         //  Fetch all employees and filter in JavaScript (OData V4 compatibility)
         //         const oListBinding = oModel.bindList("/Employees", null, null, null);
 
         //         const aContexts = await oListBinding.requestContexts(0, 10000);
@@ -8392,7 +8438,7 @@ sap.ui.define([
         //     }
         // },
 
-        // // ✅ Load On Leave Count (employees with status='Inactive Bench')
+        // //  Load On Leave Count (employees with status='Inactive Bench')
         // _loadOnLeaveCount: async function () {
         //     const oModel = this.getView().getModel("default") || this.getView().getModel();
         //     if (!oModel) {
@@ -8400,7 +8446,7 @@ sap.ui.define([
         //     }
 
         //     try {
-        //         // ✅ Fetch all employees and filter in JavaScript (OData V4 compatibility)
+        //         //  Fetch all employees and filter in JavaScript (OData V4 compatibility)
         //         const oListBinding = oModel.bindList("/Employees", null, null, null);
 
         //         const aContexts = await oListBinding.requestContexts(0, 10000);
@@ -8417,7 +8463,7 @@ sap.ui.define([
         //     }
         // },
 
-        // ✅ Calculate Bench Count (Pre Allocated + Unproductive Bench + On Leave)
+        //  Calculate Bench Count (Pre Allocated + Unproductive Bench + On Leave)
         // _calculateBenchCount: function () {
         //     const oHomeCountsModel = this.getView().getModel("homeCounts");
         //     if (!oHomeCountsModel) {
@@ -8444,7 +8490,8 @@ sap.ui.define([
                     this._loadPreAllocatedCount(),
                     this._loadUnproductiveBenchCount(),
                     this._loadOnLeaveCount(),
-                    this._loadDemandCount()
+                    this._loadDemandCount(),
+                    this._loadProjectsCount()
                 ]);
                 // Calculate Bench Count
                 this._calculateBenchCount();
@@ -8452,7 +8499,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Load Total Head Count (all employees excluding Resigned)
+        //  Load Total Head Count (all employees excluding Resigned)
         _loadTotalHeadCount: async function () {
 
             const oModel = this.getView().getModel("default") || this.getView().getModel();
@@ -8483,7 +8530,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Load Allocated Count (employees with status='Allocated')
+        //  Load Allocated Count (employees with status='Allocated')
         _loadAllocatedCount: async function () {
             const oModel = this.getView().getModel("default") || this.getView().getModel();
             if (!oModel) return;
@@ -8511,13 +8558,9 @@ sap.ui.define([
             } catch (error) {
                 jQuery.sap.log.error("Failed to load Allocated count (V4)", error);
             }
-
-
-
-
         },
 
-        // ✅ Load Pre Allocated Count (employees with status='Pre Allocated')
+        //  Load Pre Allocated Count (employees with status='Pre Allocated')
         _loadPreAllocatedCount: async function () {
             const oModel = this.getView().getModel("default") || this.getView().getModel();
             if (!oModel) return;
@@ -8550,7 +8593,7 @@ sap.ui.define([
 
         },
 
-        // ✅ Load Unproductive Bench Count (employees with status='Unproductive Bench')
+        //  Load Unproductive Bench Count (employees with status='Unproductive Bench')
         _loadUnproductiveBenchCount: async function () {
             const oModel = this.getView().getModel("default") || this.getView().getModel();
             if (!oModel) return;
@@ -8578,12 +8621,9 @@ sap.ui.define([
             } catch (error) {
                 jQuery.sap.log.error("Failed to load Unproductive Bench count (V4)", error);
             }
-
-
-
         },
 
-        // ✅ Load On Leave Count (employees with status='Inactive Bench')
+        //  Load On Leave Count (employees with status='Inactive Bench')
         _loadOnLeaveCount: async function () {
             const oModel = this.getView().getModel("default") || this.getView().getModel();
             if (!oModel) return;
@@ -8639,8 +8679,33 @@ sap.ui.define([
                 Log.error("Failed to load Demand Count (V4)", error);
             }
         },
+         _loadProjectsCount: async function () {
+            const oModel = this.getView().getModel("default") || this.getView().getModel();
+            if (!oModel) return;
 
-        // ✅ Calculate Bench Count (Pre Allocated + Unproductive Bench + On Leave)
+            try {
+                // Bind the collection with $count enabled
+                const oListBinding = oModel.bindList("/ProjectsNearingCompletionReport", /* context */ undefined, /* sorter */ undefined, /* filters */ undefined, {
+                    $count: true // ensure server returns total count
+                });
+
+                // Trigger the binding without requesting any rows
+                await oListBinding.requestContexts(0, 0);
+
+                // Get the server-evaluated length
+                const totalCount = oListBinding.getLength(); // integer >= 0
+
+                const oHomeCountsModel = this.getView().getModel("homeCounts");
+                if (oHomeCountsModel) {
+                    oHomeCountsModel.setProperty("/projectsCount", totalCount);
+                }
+            } catch (error) {
+                Log.error("Failed to load Demand Count (V4)", error);
+            }
+        },
+
+
+        //  Calculate Bench Count (Pre Allocated + Unproductive Bench + On Leave)
         _calculateBenchCount: function () {
             const oHomeCountsModel = this.getView().getModel("homeCounts");
             if (!oHomeCountsModel) {
@@ -8655,20 +8720,20 @@ sap.ui.define([
             oHomeCountsModel.setProperty("/benchCount", benchCount);
         },
 
-        // ✅ NEW: Set default filters for each entity
+        //  NEW: Set default filters for each entity
         _setDefaultFilters: function () {
             const oFilterModel = this.getView().getModel("filterModel");
             if (!oFilterModel) return;
 
-            // ✅ Default filters structure initialized - actual filter fields set in fragment load
+            //  Default filters structure initialized - actual filter fields set in fragment load
         },
 
-        // ✅ NEW: Helper function to set default visible filter fields AND show fields with values
-        // ✅ IMPORTANT: Always shows 1-2 important filters for each fragment
+        //  NEW: Helper function to set default visible filter fields AND show fields with values
+        //  IMPORTANT: Always shows 1-2 important filters for each fragment
         _setDefaultFilterFields: function (oFilterBar, aDefaultFields) {
             if (!oFilterBar || !aDefaultFields || aDefaultFields.length === 0) return;
 
-            // ✅ Get fragment name from FilterBar ID
+            //  Get fragment name from FilterBar ID
             const sFilterBarId = oFilterBar.getId();
             let sFragmentName = "Customers";
             if (sFilterBarId.includes("customerFilterBar")) {
@@ -8697,7 +8762,7 @@ sap.ui.define([
             const oFragmentConditions = oFilterModel ? oFilterModel.getProperty(`/${sFragmentName}/conditions`) : {};
 
             const fnSetDefaultFilters = () => {
-                // ✅ Try multiple times to ensure FilterBar is ready
+                //  Try multiple times to ensure FilterBar is ready
                 let nAttempts = 0;
                 const nMaxAttempts = 10;
 
@@ -8706,7 +8771,7 @@ sap.ui.define([
 
                     if (oFilterBar && oFilterBar.initialized && typeof oFilterBar.initialized === "function") {
                         oFilterBar.initialized().then(() => {
-                            // ✅ Collect fields that should be visible:
+                            //  Collect fields that should be visible:
                             // 1. Default/Important fields (ALWAYS visible - 1-2 per fragment)
                             // 2. Fields that have values in filterModel
                             const aFieldsToShow = [...aDefaultFields];
@@ -8727,7 +8792,7 @@ sap.ui.define([
                                 });
                             }
 
-                            // ✅ Always apply the state to ensure important filters are visible
+                            //  Always apply the state to ensure important filters are visible
                             const oNewState = {
                                 filter: {
                                     FilterFields: {
@@ -8736,19 +8801,19 @@ sap.ui.define([
                                 }
                             };
 
-                            // ✅ Apply state directly (don't check existing state)
+                            //  Apply state directly (don't check existing state)
                             StateUtil.applyExternalState(oFilterBar, oNewState).then(() => {
 
-                                // ✅ Also ensure FilterFields are actually visible via setVisible - try multiple times
+                                //  Also ensure FilterFields are actually visible via setVisible - try multiple times
                                 setTimeout(() => {
                                     fnSetDefaultFiltersAlternative(aFieldsToShow);
 
-                                    // ✅ Force FilterBar to update/refresh
+                                    //  Force FilterBar to update/refresh
                                     if (oFilterBar && typeof oFilterBar.invalidate === "function") {
                                         oFilterBar.invalidate();
                                     }
 
-                                    // ✅ Retry once more to ensure visibility
+                                    //  Retry once more to ensure visibility
                                     setTimeout(() => {
                                         fnSetDefaultFiltersAlternative(aFieldsToShow);
                                     }, 500);
@@ -8800,10 +8865,10 @@ sap.ui.define([
                         aFilterFields.forEach(function (oField) {
                             if (oField && oField.setVisible) {
                                 const sPropertyKey = oField.getPropertyKey();
-                                // ✅ Always show default/important fields
+                                //  Always show default/important fields
                                 if (aDefaultFields.indexOf(sPropertyKey) >= 0) {
                                     oField.setVisible(true);
-                                    // ✅ Force update
+                                    //  Force update
                                     if (oField.rerender) {
                                         oField.rerender();
                                     }
@@ -8817,12 +8882,12 @@ sap.ui.define([
                             }
                         });
 
-                        // ✅ Force FilterBar to refresh
+                        //  Force FilterBar to refresh
                         if (oFilterBar && typeof oFilterBar.invalidate === "function") {
                             oFilterBar.invalidate();
                         }
                     } else {
-                        // ✅ If FilterFields not ready, retry
+                        //  If FilterFields not ready, retry
                         setTimeout(() => {
                             fnSetDefaultFiltersAlternative(aFieldsToShow);
                         }, 500);
@@ -9093,7 +9158,7 @@ sap.ui.define([
         onSplitButtonArrowPress: CustomUtility.prototype._onSplitButtonArrowPress,
         exportUploadTemplate: CustomUtility.prototype._exportUploadTemplate,
 
-        // ✅ Value Help Dialog Handlers
+        //  Value Help Dialog Handlers
         onCustomerValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const oView = this.getView();
@@ -9177,13 +9242,13 @@ sap.ui.define([
             this._oEmployeeValueHelpDialog.open();
         },
 
-        // ✅ Value Help Dialog: GPM request handler (reuses Employee dialog)
+        //  Value Help Dialog: GPM request handler (reuses Employee dialog)
         onGPMValueHelpRequest: function (oEvent) {
             // Reuse Employee value help dialog for GPM selection
             this.onEmployeeValueHelpRequest(oEvent);
         },
 
-        // ✅ Value Help Dialog: Cancel handler
+        //  Value Help Dialog: Cancel handler
         onCustomerValueHelpCancel: function (oEvent) {
             const oDialog = this._oCustomerValueHelpDialog;
             if (oDialog) {
@@ -9237,13 +9302,13 @@ sap.ui.define([
             this._onEmployeeChangeCancel();
         },
 
-        // ✅ Value Help Dialog: GPM cancel handler (reuses Employee dialog)
+        //  Value Help Dialog: GPM cancel handler (reuses Employee dialog)
         onGPMValueHelpCancel: function (oEvent) {
             // Reuse Employee value help cancel
             this.onEmployeeValueHelpCancel(oEvent);
         },
 
-        // ✅ Value Help Dialog: Project request handler
+        //  Value Help Dialog: Project request handler
         onProjectValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const oView = this.getView();
@@ -9262,7 +9327,7 @@ sap.ui.define([
             const sInputId = oInput.getId();
             const bIsAllocateDialog = sInputId && sInputId.includes("Resinput_proj");
 
-            // ✅ CRITICAL: If opened from AllocateN fragment, check for customer and filter projects
+            //  CRITICAL: If opened from AllocateN fragment, check for customer and filter projects
             if (bIsAllocateDialog) {
                 // Get customer ID from Resinput_Customer
                 const oCustomerInput = this.byId("Resinput_Customer");
@@ -9279,7 +9344,7 @@ sap.ui.define([
                 // Clear any previous project filter
                 this._sAllocateProjectFilter = null;
             } else {
-                // ✅ CRITICAL: If opened from employee level (AllocateDialog), get project from Res fragment
+                //  CRITICAL: If opened from employee level (AllocateDialog), get project from Res fragment
                 const sResProjectId = this.byId("Resinput_Project")?.data("selectedId");
                 if (sResProjectId) {
                     this._sAllocateProjectFilter = sResProjectId;
@@ -9288,7 +9353,7 @@ sap.ui.define([
 
             this._oProjectValueHelpDialog.open();
 
-            // ✅ Apply customer filter immediately when dialog opens (for AllocateN fragment)
+            //  Apply customer filter immediately when dialog opens (for AllocateN fragment)
             if (bIsAllocateDialog && this._sAllocateCustomerFilter) {
                 setTimeout(() => {
                     this._applyProjectCustomerFilter();
@@ -9296,7 +9361,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Value Help Dialog: Project search handler
+        //  Value Help Dialog: Project search handler
         // onProjectValueHelpSearch: function (oEvent) {
         //     const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
         //     const oDialog = this._oProjectValueHelpDialog;
@@ -9313,7 +9378,7 @@ sap.ui.define([
 
         //     const aFilters = [];
 
-        //     // ✅ CRITICAL: Apply customer filter if from AllocateN fragment
+        //     //  CRITICAL: Apply customer filter if from AllocateN fragment
         //     const oInputField = oDialog._oInputField;
         //     if (oInputField) {
         //         const sInputId = oInputField.getId();
@@ -9377,7 +9442,7 @@ sap.ui.define([
 
             const aFilters = [];
 
-            // ✅ AND: Apply customer filter if coming from AllocateN fragment
+            //  AND: Apply customer filter if coming from AllocateN fragment
             const oInputField = oDialog._oInputField;
             if (oInputField) {
                 const sInputId = oInputField.getId();
@@ -9390,7 +9455,7 @@ sap.ui.define([
                 }
             }
 
-            // ✅ OR: Case-insensitive search across projectName, sapPId, sfdcPId
+            //  OR: Case-insensitive search across projectName, sapPId, sfdcPId
             if (sQuery && sQuery.trim() !== "") {
                 const sTerm = sQuery.trim();
 
@@ -9432,7 +9497,7 @@ sap.ui.define([
             oBinding.filter(aFilters.length > 0 ? aFilters : [], sap.ui.model.FilterType.Application);
         },
 
-        // ✅ Helper function: Apply customer filter to project value help dialog
+        //  Helper function: Apply customer filter to project value help dialog
         _applyProjectCustomerFilter: function () {
             const oDialog = this._oProjectValueHelpDialog;
             if (!oDialog) return;
@@ -9450,7 +9515,7 @@ sap.ui.define([
 
             const aFilters = [];
 
-            // ✅ Apply customer filter via Opportunity relationship
+            //  Apply customer filter via Opportunity relationship
             if (this._sAllocateCustomerFilter) {
                 aFilters.push(new sap.ui.model.Filter({
                     path: "to_Opportunity/customerId",
@@ -9462,7 +9527,7 @@ sap.ui.define([
             oBinding.filter(aFilters.length > 0 ? aFilters : []);
         },
 
-        // ✅ Value Help Dialog: Project confirm handler
+        //  Value Help Dialog: Project confirm handler
         onProjectValueHelpConfirm: function (oEvent) {
             const oDialog = this._oProjectValueHelpDialog;
             if (!oDialog) {
@@ -9489,19 +9554,19 @@ sap.ui.define([
                 const oProject = oContext.getObject();
                 const sProjectId = oProject.sapPId || "";
 
-                // ✅ Display only ID (not name) for association fields
+                //  Display only ID (not name) for association fields
                 oDialog._oInputField.setValue(sProjectId || "");
                 oDialog._oInputField.data("selectedId", sProjectId);
 
-                // ✅ CRITICAL: Store project ID for AllocateDialog demand filtering
+                //  CRITICAL: Store project ID for AllocateDialog demand filtering
                 const sInputId = oDialog._oInputField.getId();
                 if (sInputId && sInputId.includes("Resinput_proj")) {
                     this._sAllocateDemandProjectFilter = sProjectId;
 
-                    // ✅ NEW: Populate employees allocated to selected project
+                    //  NEW: Populate employees allocated to selected project
                     this._populateProjectEmployees(sProjectId);
 
-                    // ✅ Auto-fill start and end dates from project (default values, user can modify)
+                    //  Auto-fill start and end dates from project (default values, user can modify)
                     // Try multiple methods to find date pickers (they're in AllocateDialog fragment)
                     let oStartDatePicker = this.byId("startDate");
                     let oEndDatePicker = this.byId("endDate");
@@ -9537,7 +9602,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ Auto-fill dates from project - try to get full project data to ensure dates are available
+                    //  Auto-fill dates from project - try to get full project data to ensure dates are available
                     const fnSetDates = (oProjectData) => {
                         if (oProjectData && oStartDatePicker && oProjectData.startDate) {
                             oStartDatePicker.setValue(oProjectData.startDate);
@@ -9553,7 +9618,7 @@ sap.ui.define([
                     if (oProject.startDate || oProject.endDate) {
                         fnSetDates(oProject);
                     } else {
-                        // ✅ If dates not in project object, fetch full project data using requestObject
+                        //  If dates not in project object, fetch full project data using requestObject
                         if (oContext && oContext.requestObject) {
                             oContext.requestObject().then((oFullProject) => {
                                 fnSetDates(oFullProject);
@@ -9576,7 +9641,7 @@ sap.ui.define([
             this._onProjectChange();
         },
 
-        // ✅ Value Help Dialog: Project cancel handler
+        //  Value Help Dialog: Project cancel handler
         onProjectValueHelpCancel: function (oEvent) {
             const oDialog = this._oProjectValueHelpDialog;
             if (oDialog) {
@@ -9595,7 +9660,7 @@ sap.ui.define([
             this._onProjectChangeCancel();
         },
 
-        // ✅ Value Help Dialog: Demand request handler
+        //  Value Help Dialog: Demand request handler
         onDemandValueHelpRequest: function (oEvent) {
             const oInput = oEvent.getSource();
             const oView = this.getView();
@@ -9616,7 +9681,7 @@ sap.ui.define([
             const bIsFindResourcesDialog = sInputId && sInputId.includes("findResourcesDemandInput");
             const bIsResFragment = sInputId && sInputId.includes("Resinput_Demand");
 
-            // ✅ CRITICAL: Store project filter if available (from AllocateDialog, FindResourcesDialog, or Res fragment)
+            //  CRITICAL: Store project filter if available (from AllocateDialog, FindResourcesDialog, or Res fragment)
             if (bIsAllocateDialog) {
                 // Get project ID from AllocateDialog project input
                 const sProjectId = this.byId("Resinput_proj")?.data("selectedId");
@@ -9628,11 +9693,11 @@ sap.ui.define([
                     if (sResProjectId) {
                         this._sAllocateDemandProjectFilter = sResProjectId;
                     } else {
-                        // ✅ Also check if project was already stored from previous selection
+                        //  Also check if project was already stored from previous selection
                     }
                 }
             } else if (bIsFindResourcesDialog) {
-                // ✅ NEW: Get project ID from Find Resources context (stored when dialog opened)
+                //  NEW: Get project ID from Find Resources context (stored when dialog opened)
                 const sProjectId = this._sAllocationProjectId;
                 if (sProjectId) {
                     this._sAllocateDemandProjectFilter = sProjectId;
@@ -9648,7 +9713,7 @@ sap.ui.define([
 
             this._oDemandValueHelpDialog.open();
 
-            // ✅ CRITICAL: Apply filter immediately when dialog opens (not just on search)
+            //  CRITICAL: Apply filter immediately when dialog opens (not just on search)
             setTimeout(() => {
                 const oDialogContent = this._oDemandValueHelpDialog.getContent()[0];
                 if (oDialogContent) {
@@ -9670,7 +9735,7 @@ sap.ui.define([
                             }
 
                             if (sProjectFilter) {
-                                // ✅ CRITICAL: Use project ID as-is (P-0001 format) - no conversion needed
+                                //  CRITICAL: Use project ID as-is (P-0001 format) - no conversion needed
                                 // The Demand CSV and database now use "P-0001" format consistently
                                 aFilters.push(new sap.ui.model.Filter("sapPId", sap.ui.model.FilterOperator.EQ, sProjectFilter));
                                 oBinding.filter(aFilters);
@@ -9681,7 +9746,7 @@ sap.ui.define([
             }, 100);
         },
 
-        // ✅ Value Help Dialog: Demand search handler
+        //  Value Help Dialog: Demand search handler
         onDemandValueHelpSearch: function (oEvent) {
             const sQuery = oEvent.getParameter("query") || oEvent.getParameter("newValue") || "";
             const oDialog = this._oDemandValueHelpDialog;
@@ -9707,7 +9772,7 @@ sap.ui.define([
             }
 
             if (sProjectFilter) {
-                // ✅ CRITICAL: Use project ID as-is (P-0001 format) - no conversion needed
+                //  CRITICAL: Use project ID as-is (P-0001 format) - no conversion needed
                 // The Demand CSV and database now use "P-0001" format consistently
                 aFilters.push(new sap.ui.model.Filter("sapPId", sap.ui.model.FilterOperator.EQ, sProjectFilter));
             }
@@ -9720,7 +9785,7 @@ sap.ui.define([
             oBinding.filter(aFilters.length > 0 ? aFilters : []);
         },
 
-        // ✅ Value Help Dialog: Demand confirm handler
+        //  Value Help Dialog: Demand confirm handler
         onDemandValueHelpConfirm: function (oEvent) {
             const oDialog = this._oDemandValueHelpDialog;
             if (!oDialog) {
@@ -9745,7 +9810,7 @@ sap.ui.define([
             const oContext = oSelectedItem.getBindingContext();
             if (oContext && oDialog._oInputField) {
                 const oDemand = oContext.getObject();
-                // ✅ Display only ID (not description) for association fields
+                //  Display only ID (not description) for association fields
                 const sDemandId = oDemand.demandId || oDemand.id || "";
                 oDialog._oInputField.setValue(sDemandId);
                 oDialog._oInputField.data("selectedId", sDemandId);
@@ -9757,7 +9822,7 @@ sap.ui.define([
             oDialog.close();
         },
 
-        // ✅ Value Help Dialog: Demand cancel handler
+        //  Value Help Dialog: Demand cancel handler
         onDemandValueHelpCancel: function (oEvent) {
             const oDialog = this._oDemandValueHelpDialog;
             if (oDialog) {
@@ -9773,7 +9838,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Value Help Dialog: Customer selection handler
+        //  Value Help Dialog: Customer selection handler
         onCustomerValueHelpConfirm: function (oEvent) {
             const oDialog = this._oCustomerValueHelpDialog;
             if (!oDialog) {
@@ -9790,7 +9855,7 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Check if a row is actually selected
+            //  CRITICAL: Check if a row is actually selected
             const oSelectedItem = oTable.getSelectedItem();
             if (!oSelectedItem) {
                 sap.m.MessageToast.show("Please select a customer");
@@ -9824,11 +9889,11 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ Display only ID (not name) for association fields
+            //  Display only ID (not name) for association fields
             oDialog._oInputField.setValue(oCustomer.customerName || "");
             oDialog._oInputField.data("selectedId", oCustomer.SAPcustId);
 
-            // ✅ CRITICAL: Store customer ID for project filtering (AllocateN fragment)
+            //  CRITICAL: Store customer ID for project filtering (AllocateN fragment)
             const sInputId = oDialog._oInputField.getId();
             if (sInputId && sInputId.includes("Resinput_Customer")) {
                 // Store customer ID for filtering projects in AllocateN fragment
@@ -9844,13 +9909,13 @@ sap.ui.define([
                 oModel.setProperty("/customerId", oCustomer.SAPcustId);
             }
 
-            // ✅ CRITICAL: Close dialog FIRST before doing table updates
+            //  CRITICAL: Close dialog FIRST before doing table updates
             if (oTable && oTable.clearSelection) {
                 oTable.clearSelection();
             }
             oDialog.close();
 
-            // ✅ CRITICAL: Update selected row in main table and refresh for instant UI update
+            //  CRITICAL: Update selected row in main table and refresh for instant UI update
             const oMainTable = this.byId("Opportunities");
             if (oMainTable) {
                 const aSelectedContexts = oMainTable.getSelectedContexts();
@@ -9859,10 +9924,10 @@ sap.ui.define([
                     const oModel = oMainTable.getModel();
                     const sPath = oMainContext.getPath();
 
-                    // ✅ STEP 1: Update the context property immediately
+                    //  STEP 1: Update the context property immediately
                     oMainContext.setProperty("customerId", oCustomer.SAPcustId);
 
-                    // ✅ STEP 2: Update the association data immediately for instant UI feedback
+                    //  STEP 2: Update the association data immediately for instant UI feedback
                     if (oMainContext.getObject) {
                         const oObj = oMainContext.getObject();
                         if (oObj) {
@@ -9873,7 +9938,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ STEP 3: CRITICAL - Refresh the expanded association binding for this specific row
+                    //  STEP 3: CRITICAL - Refresh the expanded association binding for this specific row
                     // This forces the table to re-fetch the expanded association data
                     if (sPath && oModel) {
                         const oExpandedContext = oModel.bindContext(sPath + "/to_Customer", null, { deferred: true });
@@ -9895,7 +9960,7 @@ sap.ui.define([
                         }).catch(() => { });
                     }
 
-                    // ✅ STEP 4: Force immediate UI update by checking data state
+                    //  STEP 4: Force immediate UI update by checking data state
                     if (oModel && oModel.checkDataState) {
                         oModel.checkDataState();
                     }
@@ -9903,7 +9968,7 @@ sap.ui.define([
                         oMainContext.checkUpdate();
                     }
 
-                    // ✅ STEP 5: Refresh the table binding to show updated value immediately
+                    //  STEP 5: Refresh the table binding to show updated value immediately
                     const oRowBinding = oMainTable.getRowBinding && oMainTable.getRowBinding();
                     const oBinding = oMainTable.getBinding("rows") || oMainTable.getBinding("items");
                     if (oRowBinding) {
@@ -9912,7 +9977,7 @@ sap.ui.define([
                         oBinding.refresh().catch(() => { });
                     }
 
-                    // ✅ STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
+                    //  STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
                     if (oMainTable.rebind) {
                         setTimeout(() => {
                             try {
@@ -9923,13 +9988,13 @@ sap.ui.define([
                     }
                 }
             }
-            // ✅ After setting the customer value:
+            //  After setting the customer value:
             this._onCustomerChange();
 
 
         },
 
-        // ✅ Value Help Dialog: Opportunity selection handler
+        //  Value Help Dialog: Opportunity selection handler
         onOpportunityValueHelpConfirm: function (oEvent) {
             const oDialog = this._oOpportunityValueHelpDialog;
             if (!oDialog) {
@@ -9946,7 +10011,7 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Check if a row is actually selected
+            //  CRITICAL: Check if a row is actually selected
             const oSelectedItem = oTable.getSelectedItem();
             if (!oSelectedItem) {
                 sap.m.MessageToast.show("Please select an opportunity");
@@ -9980,7 +10045,7 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ Display only ID (not name) for association fields
+            //  Display only ID (not name) for association fields
             oDialog._oInputField.setValue(oOpportunity.sapOpportunityId || "");
             oDialog._oInputField.data("selectedId", oOpportunity.sapOpportunityId);
 
@@ -9993,13 +10058,13 @@ sap.ui.define([
                 oModel.setProperty("/oppId", oOpportunity.sapOpportunityId);
             }
 
-            // ✅ CRITICAL: Close dialog FIRST before doing table updates
+            //  CRITICAL: Close dialog FIRST before doing table updates
             if (oTable && oTable.clearSelection) {
                 oTable.clearSelection();
             }
             oDialog.close();
 
-            // ✅ CRITICAL: Update selected row in main table and refresh for instant UI update
+            //  CRITICAL: Update selected row in main table and refresh for instant UI update
             const oMainTable = this.byId("Projects");
             if (oMainTable) {
                 const aSelectedContexts = oMainTable.getSelectedContexts();
@@ -10008,10 +10073,10 @@ sap.ui.define([
                     const oModel = oMainTable.getModel();
                     const sPath = oMainContext.getPath();
 
-                    // ✅ STEP 1: Update the context property immediately
+                    //  STEP 1: Update the context property immediately
                     oMainContext.setProperty("oppId", oOpportunity.sapOpportunityId);
 
-                    // ✅ STEP 2: Update the association data immediately for instant UI feedback
+                    //  STEP 2: Update the association data immediately for instant UI feedback
                     if (oMainContext.getObject) {
                         const oObj = oMainContext.getObject();
                         if (oObj) {
@@ -10022,7 +10087,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ STEP 3: CRITICAL - Refresh the expanded association binding for this specific row
+                    //  STEP 3: CRITICAL - Refresh the expanded association binding for this specific row
                     // This forces the table to re-fetch the expanded association data
                     if (sPath && oModel) {
                         const oExpandedContext = oModel.bindContext(sPath + "/to_Opportunity", null, { deferred: true });
@@ -10044,7 +10109,7 @@ sap.ui.define([
                         }).catch(() => { });
                     }
 
-                    // ✅ STEP 4: Force immediate UI update by checking data state
+                    //  STEP 4: Force immediate UI update by checking data state
                     if (oModel && oModel.checkDataState) {
                         oModel.checkDataState();
                     }
@@ -10052,7 +10117,7 @@ sap.ui.define([
                         oMainContext.checkUpdate();
                     }
 
-                    // ✅ STEP 5: Refresh the table binding to show updated value immediately
+                    //  STEP 5: Refresh the table binding to show updated value immediately
                     const oRowBinding = oMainTable.getRowBinding && oMainTable.getRowBinding();
                     const oBinding = oMainTable.getBinding("rows") || oMainTable.getBinding("items");
                     if (oRowBinding) {
@@ -10061,7 +10126,7 @@ sap.ui.define([
                         oBinding.refresh().catch(() => { });
                     }
 
-                    // ✅ STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
+                    //  STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
                     if (oMainTable.rebind) {
                         setTimeout(() => {
                             try {
@@ -10074,7 +10139,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Value Help Dialog: Employee selection handler
+        //  Value Help Dialog: Employee selection handler
         onEmployeeValueHelpConfirm: function (oEvent) {
             const oDialog = this._oEmployeeValueHelpDialog;
             if (!oDialog) {
@@ -10091,7 +10156,7 @@ sap.ui.define([
                 return;
             }
 
-            // ✅ CRITICAL: Check if a row is actually selected
+            //  CRITICAL: Check if a row is actually selected
             const oSelectedItem = oTable.getSelectedItem();
             if (!oSelectedItem) {
                 sap.m.MessageToast.show("Please select a supervisor");
@@ -10131,17 +10196,17 @@ sap.ui.define([
             const bIsDeliverySPOC = oDialog._isDeliverySPOC === true;
             const sStoredId = oEmployee.ohrId || "";
 
-            // ✅ Display only ID (not name) for association fields
+            //  Display only ID (not name) for association fields
             oDialog._oInputField.setValue(sStoredId);
             oDialog._oInputField.data("selectedId", sStoredId);
 
-            // ✅ CRITICAL: Close dialog FIRST before doing table updates
+            //  CRITICAL: Close dialog FIRST before doing table updates
             if (oTable && oTable.clearSelection) {
                 oTable.clearSelection();
             }
             oDialog.close();
 
-            // ✅ CRITICAL: Update selected row in main table and refresh for instant UI update
+            //  CRITICAL: Update selected row in main table and refresh for instant UI update
             let oMainTable;
             let sFieldName;
             let sAssocName;
@@ -10166,10 +10231,10 @@ sap.ui.define([
                     const oModel = oMainTable.getModel();
                     const sPath = oMainContext.getPath();
 
-                    // ✅ STEP 1: Update the context property immediately
+                    //  STEP 1: Update the context property immediately
                     oMainContext.setProperty(sFieldName, sStoredId);
 
-                    // ✅ STEP 2: Update the association data immediately for instant UI feedback (only for GPM and Supervisor)
+                    //  STEP 2: Update the association data immediately for instant UI feedback (only for GPM and Supervisor)
                     if (sAssocName && oMainContext.getObject) {
                         const oObj = oMainContext.getObject();
                         if (oObj) {
@@ -10180,7 +10245,7 @@ sap.ui.define([
                         }
                     }
 
-                    // ✅ STEP 3: CRITICAL - Refresh the expanded association binding for this specific row (only for GPM and Supervisor)
+                    //  STEP 3: CRITICAL - Refresh the expanded association binding for this specific row (only for GPM and Supervisor)
                     // This forces the table to re-fetch the expanded association data
                     if (sAssocName && sPath && oModel) {
                         const oExpandedContext = oModel.bindContext(sPath + "/" + sAssocName, null, { deferred: true });
@@ -10202,7 +10267,7 @@ sap.ui.define([
                         }).catch(() => { });
                     }
 
-                    // ✅ STEP 4: Force immediate UI update by checking data state
+                    //  STEP 4: Force immediate UI update by checking data state
                     if (oModel && oModel.checkDataState) {
                         oModel.checkDataState();
                     }
@@ -10210,7 +10275,7 @@ sap.ui.define([
                         oMainContext.checkUpdate();
                     }
 
-                    // ✅ STEP 5: Refresh the table binding to show updated value immediately
+                    //  STEP 5: Refresh the table binding to show updated value immediately
                     const oRowBinding = oMainTable.getRowBinding && oMainTable.getRowBinding();
                     const oBinding = oMainTable.getBinding("rows") || oMainTable.getBinding("items");
                     if (oRowBinding) {
@@ -10219,7 +10284,7 @@ sap.ui.define([
                         oBinding.refresh().catch(() => { });
                     }
 
-                    // ✅ STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
+                    //  STEP 6: Also try rebind for MDC tables (this refreshes expanded associations)
                     if (oMainTable.rebind) {
                         setTimeout(() => {
                             try {
@@ -10233,7 +10298,7 @@ sap.ui.define([
             this._onEmployeeChange();
         },
 
-        // ✅ Value Help Dialog: Search handlers
+        //  Value Help Dialog: Search handlers
         onCustomerValueHelpSearch: function (oEvent) {
             const sValue = oEvent.getParameter("value") || oEvent.getSource().getValue() || "";
             const oDialog = this._oCustomerValueHelpDialog;
@@ -10260,7 +10325,7 @@ sap.ui.define([
                         path: "customerName",
                         operator: sap.ui.model.FilterOperator.Contains,
                         value1: sValue.trim(),
-                        caseSensitive: false // ✅ Case-insensitive search for value help
+                        caseSensitive: false //  Case-insensitive search for value help
                     }),
                     new sap.ui.model.Filter({
                         path: "SAPcustId",
@@ -10312,7 +10377,7 @@ sap.ui.define([
                         path: "opportunityName",
                         operator: sap.ui.model.FilterOperator.Contains,
                         value1: sValue.trim(),
-                        caseSensitive: false // ✅ Case-insensitive search for value help
+                        caseSensitive: false //  Case-insensitive search for value help
                     })
                 ];
                 oBinding.filter(aFilters, sap.ui.model.FilterType.Application);
@@ -10347,7 +10412,7 @@ sap.ui.define([
                         path: "fullName",
                         operator: sap.ui.model.FilterOperator.Contains,
                         value1: sValue.trim(),
-                        caseSensitive: false // ✅ Case-insensitive search for value help
+                        caseSensitive: false //  Case-insensitive search for value help
                     })
                 ];
                 oBinding.filter(aFilters, sap.ui.model.FilterType.Application);
@@ -10356,9 +10421,9 @@ sap.ui.define([
             }
         },
 
-        // ✅ Helper: Populate Country dropdown for Employee form
+        //  Helper: Populate Country dropdown for Employee form
         _populateCountryDropdown: function () {
-            // ✅ Populate Employee Country Dropdown
+            //  Populate Employee Country Dropdown
             const oEmployeeCountrySelect = this.byId("inputCountry_emp");
             if (!oEmployeeCountrySelect) {
                 return;
@@ -10389,7 +10454,7 @@ sap.ui.define([
 
         },
 
-        // ✅ Handler: Employee Country change - populate Employee City dropdown
+        //  Handler: Employee Country change - populate Employee City dropdown
         onEmployeeCountryChange: function (oEvent) {
             const sSelectedCountry = oEvent.getParameter("selectedItem")?.getKey() || "";
             const oCitySelect = this.byId("inputCity_emp");
@@ -10430,7 +10495,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Handler: Customer Country change - populate Customer State dropdown
+        //  Handler: Customer Country change - populate Customer State dropdown
         onCountryChange: function (oEvent) {
             const oSelectedItem = oEvent.getParameter("selectedItem");
             const countryId = oSelectedItem ? oSelectedItem.getKey() : "";
@@ -10492,7 +10557,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Handler: Customer State change - populate Customer City dropdown
+        //  Handler: Customer State change - populate Customer City dropdown
         onStateChange: function (oEvent) {
             const stateIdStr = oEvent.getSource().getSelectedKey();
             const countryIdStr = this.byId("countryComboBox").getSelectedKey();
@@ -10550,7 +10615,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Handler: Customer City change - update customerModel
+        //  Handler: Customer City change - update customerModel
         onCityChange: function (oEvent) {
             const oSelectedItem = oEvent.getParameter("selectedItem");
             const sSelectedCityId = oSelectedItem ? oSelectedItem.getKey() : "";
@@ -10562,7 +10627,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ Handler: Band change - populate Designation dropdown
+        //  Handler: Band change - populate Designation dropdown
         onBandChange: function (oEvent) {
             const sSelectedBand = oEvent.getParameter("selectedItem")?.getKey() || "";
             const oDesignationSelect = this.byId("inputRole_emp");
@@ -10603,7 +10668,7 @@ sap.ui.define([
             }
         },
 
-        // ✅ NEW: Update EmployeeSkill records (create/delete based on selection)
+        //  NEW: Update EmployeeSkill records (create/delete based on selection)
         _updateEmployeeSkills: function (sEmployeeId, aSelectedSkillIds, oModel) {
             if (!sEmployeeId || !oModel) {
                 return Promise.resolve();
@@ -10626,7 +10691,7 @@ sap.ui.define([
                         // Find skills to create (selected but don't exist)
                         const aToCreate = aSelected.filter(skillId => !aExistingSkillIds.includes(skillId));
 
-                        // ✅ CRITICAL: Get binding once (like Allocations)
+                        //  CRITICAL: Get binding once (like Allocations)
                         const oBinding = oModel.bindList("/EmployeeSkills", null, [], [], {
                             groupId: "changesGroup"
                         });
@@ -10652,13 +10717,12 @@ sap.ui.define([
                                 skillId: skillId
                             };
 
-
-                            // ✅ Use same pattern as Allocations creation
+                            //  Use same pattern as Allocations creation
                             const oNewContext = oBinding.create(oNewSkill, "changesGroup");
                             if (oNewContext) {
                                 aCreatedContexts.push(oNewContext);
 
-                                // ✅ CRITICAL: Explicitly set all properties (like Allocations)
+                                //  CRITICAL: Explicitly set all properties (like Allocations)
                                 Object.keys(oNewSkill).forEach((sKey) => {
                                     try {
                                         oNewContext.setProperty(sKey, oNewSkill[sKey]);
@@ -10671,7 +10735,7 @@ sap.ui.define([
 
                         // Submit all changes in batch
                         if (aToDelete.length > 0 || aToCreate.length > 0) {
-                            // ✅ CRITICAL: Wait a moment for contexts to be queued, then check pending changes
+                            //  CRITICAL: Wait a moment for contexts to be queued, then check pending changes
                             setTimeout(() => {
                                 const bHasPendingChanges = oModel.hasPendingChanges && oModel.hasPendingChanges("changesGroup");
 
@@ -10723,7 +10787,7 @@ sap.ui.define([
             });
         },
 
-        // ✅ Formatter function for allocation percentage display
+        //  Formatter function for allocation percentage display
         formatAllocationPercentage: function (iPercentage) {
             if (iPercentage === null || iPercentage === undefined || iPercentage === "") {
                 return "0%";
@@ -10736,20 +10800,14 @@ sap.ui.define([
         },
         // onTotalHeadPress: function () {
         //     sap.m.MessageToast.show("Total Head Count clicked");
-
         //     var oLogButton = this.byId("uploadLogButton");
-
         //     let oNavContainer = this.byId("pageContainer");
         //     oNavContainer.to(this.byId("employeesPage"));
-
         //     const oEmployeesPage = this.getView().byId("employeesPage");
 
         //     this._bEmployeesLoaded = false;
-
         //     oEmployeesPage.destroyContent();
-
-
-        //     // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+        //     //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
 
 
         //     Fragment.load({
@@ -10773,7 +10831,7 @@ sap.ui.define([
         //             oTable.setModel(oModel);
         //         }
 
-        //         // ✅ Set default filters for Employees FilterBar
+        //         //  Set default filters for Employees FilterBar
         //         const oEmployeeFilterBar = this.byId("employeeFilterBar");
         //         if (oEmployeeFilterBar) {
         //             oEmployeeFilterBar.setModel(oModel, "default");
@@ -10785,7 +10843,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oEmployeeFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oEmployeeFilterBar, ["ohrId", "band", "skills"]);
         //             }, 1000);
@@ -10799,7 +10857,7 @@ sap.ui.define([
         //         // Reset segmented button to "less" state for this fragment
         //         this._resetSegmentedButtonForFragment("Employees");
 
-        //         // ✅ Populate Country dropdown when Employees fragment loads
+        //         //  Populate Country dropdown when Employees fragment loads
         //         // Use multiple timeouts to ensure fragment is fully rendered
         //         setTimeout(() => {
         //             this._populateCountryDropdown();
@@ -10811,7 +10869,7 @@ sap.ui.define([
         //             this._populateCountryDropdown();
         //         }, 2000);
 
-        //         // ✅ Initialize Employee form (no ID preview needed - manual OHR ID entry)
+        //         //  Initialize Employee form (no ID preview needed - manual OHR ID entry)
         //         setTimeout(() => {
         //             oTable.initialized().then(() => {
         //                 setTimeout(() => {
@@ -10833,18 +10891,15 @@ sap.ui.define([
         // onAllocatedPress: function () {
         //     sap.m.MessageToast.show("Allocated Count clicked");
         //     var oLogButton = this.byId("uploadLogButton");
-
         //     var oLogButton = this.byId("uploadLogButton");
-
         //     let oNavContainer = this.byId("pageContainer");
         //     oNavContainer.to(this.byId("employeeAllocationReportPage"));
-
 
         //     this._bEmployeeAllocationReportLoaded = false;
         //     const oCustomersPage = this.getView().byId("employeeAllocationReportPage");
         //     oCustomersPage.destroyContent();
 
-        //     // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+        //     //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
 
         //     Fragment.load({
         //         id: this.getView().getId(),
@@ -10868,10 +10923,10 @@ sap.ui.define([
         //             oTable.setModel(oModel);
         //         }
 
-        //         // ✅ Populate Country dropdown when Customers fragment loads
+        //         //  Populate Country dropdown when Customers fragment loads
         //         this._populateCountryDropdown();
 
-        //         // ✅ Set default filters for Customers FilterBar
+        //         //  Set default filters for Customers FilterBar
         //         const oFilterBar = this.byId("employeeAllocationReportFilterBar");
         //         if (oFilterBar) {
         //             oFilterBar.setModel(oModel, "default");
@@ -10883,7 +10938,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oFilterBar, ["employeeName", "currentProject", "customer"]);
         //             }, 1000);
@@ -10894,7 +10949,7 @@ sap.ui.define([
 
         //         // Initialize table-specific functionality
         //         this.initializeTable("EmployeeAllocationReportTable").then(() => {
-        //             // ✅ Trigger initial data load by firing FilterBar search event
+        //             //  Trigger initial data load by firing FilterBar search event
         //             // This ensures table binds even when there are no filter conditions
         //             setTimeout(() => {
         //                 if (oFilterBar) {
@@ -10915,9 +10970,7 @@ sap.ui.define([
 
         // onBenchPress: function () {
         //     sap.m.MessageToast.show("Bench Count clicked");
-
         //     var oLogButton = this.byId("uploadLogButton");
-
         //     let oNavContainer = this.byId("pageContainer");
         //     oNavContainer.to(this.byId("employeeBenchReportPage"));
 
@@ -10946,8 +10999,7 @@ sap.ui.define([
         //             oTable.setModel(oModel);
         //         }
 
-
-        //         // ✅ Set default filters for Customers FilterBar
+        //         //  Set default filters for Customers FilterBar
         //         const oFilterBar = this.byId("employeeBenchReportFilterBar");
         //         if (oFilterBar) {
         //             oFilterBar.setModel(oModel, "default");
@@ -10959,7 +11011,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
         //             }, 1000);
@@ -10970,7 +11022,7 @@ sap.ui.define([
 
         //         // Initialize table-specific functionality
         //         this.initializeTable("EmployeeBenchReportTable").then(() => {
-        //             // ✅ Trigger initial data load by firing FilterBar search event
+        //             //  Trigger initial data load by firing FilterBar search event
         //             // This ensures table binds even when there are no filter conditions
         //             setTimeout(() => {
         //                 if (oFilterBar) {
@@ -10985,23 +11037,12 @@ sap.ui.define([
 
         //         // Reset segmented button to "less" state for this fragment
         //         this._resetSegmentedButtonForFragment("EmployeeBenchReport");
-
         //     }.bind(this));
-
-        // },
-
-        // onUnallocatedBenchPress: function () {
-        //     sap.m.MessageToast.show("Pre Allocated clicked");
         // },
 
         // onUnproductiveBenchPress: function () {
         //     sap.m.MessageToast.show("Unproductive Bench clicked");
-
-
-
-
         //     var oLogButton = this.byId("uploadLogButton");
-
         //     let oNavContainer = this.byId("pageContainer");
         //     oNavContainer.to(this.byId("employeeBenchReportPage"));
 
@@ -11030,8 +11071,7 @@ sap.ui.define([
         //             oTable.setModel(oModel);
         //         }
 
-
-        //         // ✅ Set default filters for Customers FilterBar
+        //         //  Set default filters for Customers FilterBar
         //         const oFilterBar = this.byId("employeeBenchReportFilterBar");
         //         if (oFilterBar) {
         //             oFilterBar.setModel(oModel, "default");
@@ -11043,7 +11083,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
         //             }, 1000);
@@ -11054,7 +11094,7 @@ sap.ui.define([
 
         //         // Initialize table-specific functionality
         //         this.initializeTable("EmployeeBenchReportTable").then(() => {
-        //             // ✅ Trigger initial data load by firing FilterBar search event
+        //             //  Trigger initial data load by firing FilterBar search event
         //             // This ensures table binds even when there are no filter conditions
         //             setTimeout(() => {
         //                 if (oFilterBar) {
@@ -11071,9 +11111,6 @@ sap.ui.define([
         //         this._resetSegmentedButtonForFragment("EmployeeBenchReport");
 
         //     }.bind(this));
-
-
-
         // },
 
         // onNetBenchPress: function () {
@@ -11109,7 +11146,7 @@ sap.ui.define([
         //         }
 
 
-        //         // ✅ Set default filters for Customers FilterBar
+        //         //  Set default filters for Customers FilterBar
         //         const oFilterBar = this.byId("employeeBenchReportFilterBar");
         //         if (oFilterBar) {
         //             oFilterBar.setModel(oModel, "default");
@@ -11121,7 +11158,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
         //             }, 1000);
@@ -11132,7 +11169,7 @@ sap.ui.define([
 
         //         // Initialize table-specific functionality
         //         this.initializeTable("EmployeeBenchReportTable").then(() => {
-        //             // ✅ Trigger initial data load by firing FilterBar search event
+        //             //  Trigger initial data load by firing FilterBar search event
         //             // This ensures table binds even when there are no filter conditions
         //             const oMdcTable = this.byId("EmployeeBenchReportTable");
 
@@ -11203,7 +11240,7 @@ sap.ui.define([
         //             oTable.setModel(oModel);
         //         }
 
-        //         // ✅ Set default filters for Opportunities FilterBar
+        //         //  Set default filters for Opportunities FilterBar
         //         const oMasterDemandsFilterBar = this.byId("masterDemandsFilterBar");
         //         if (oMasterDemandsFilterBar) {
         //             oMasterDemandsFilterBar.setModel(oModel, "default");
@@ -11215,7 +11252,7 @@ sap.ui.define([
         //             if (oFiltersModel) {
         //                 oMasterDemandsFilterBar.setModel(oFiltersModel, "$filters");
         //             }
-        //             // ✅ Set defaults with multiple retries
+        //             //  Set defaults with multiple retries
         //             setTimeout(() => {
         //                 this._setDefaultFilterFields(oMasterDemandsFilterBar, ["SapPId"]);
         //             }, 1000);
@@ -11229,7 +11266,7 @@ sap.ui.define([
         //         // Reset segmented button to "less" state for this fragment
         //         this._resetSegmentedButtonForFragment("MasterDemands");
 
-        //         // ✅ Initialize Opportunity ID field and form
+        //         //  Initialize Opportunity ID field and form
         //         setTimeout(() => {
         //             oTable.initialized().then(() => {
         //                 setTimeout(() => {
@@ -11249,20 +11286,7 @@ sap.ui.define([
 
         // },
 
-        // onYetToJoinPress: function () {
-        //     sap.m.MessageToast.show("Yet To Join clicked");
-        // },
-
-        // onProjectsEndingPress: function () {
-        //     sap.m.MessageToast.show("Projects Ending (In 2 Weeks) clicked");
-        // },
-        // onCustomerChange: function () {
-
-
-        // }
         onTotalHeadPress: function () {
-            // sap.m.MessageToast.show("Total Head Count clicked");
-
             var oLogButton = this.byId("uploadLogButton");
 
             let oNavContainer = this.byId("pageContainer");
@@ -11270,7 +11294,7 @@ sap.ui.define([
 
             const oEmployeesPage = this.getView().byId("employeesPage");
             if (this._bEmployeesLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("Employees");
                 if (oTable) {
                     this.initializeTable("Employees").catch(() => {
@@ -11286,7 +11310,7 @@ sap.ui.define([
             oEmployeesPage.destroyContent();
 
 
-            // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+            //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
 
 
             Fragment.load({
@@ -11310,7 +11334,7 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-                // ✅ Set default filters for Employees FilterBar
+                //  Set default filters for Employees FilterBar
                 const oEmployeeFilterBar = this.byId("employeeFilterBar");
                 if (oEmployeeFilterBar) {
                     oEmployeeFilterBar.setModel(oModel, "default");
@@ -11322,7 +11346,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oEmployeeFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oEmployeeFilterBar, ["ohrId", "band", "skills"]);
                     }, 1000);
@@ -11336,7 +11360,7 @@ sap.ui.define([
                 // Reset segmented button to "less" state for this fragment
                 this._resetSegmentedButtonForFragment("Employees");
 
-                // ✅ Populate Country dropdown when Employees fragment loads
+                //  Populate Country dropdown when Employees fragment loads
                 // Use multiple timeouts to ensure fragment is fully rendered
                 setTimeout(() => {
                     this._populateCountryDropdown();
@@ -11348,7 +11372,7 @@ sap.ui.define([
                     this._populateCountryDropdown();
                 }, 2000);
 
-                // ✅ Initialize Employee form (no ID preview needed - manual OHR ID entry)
+                //  Initialize Employee form (no ID preview needed - manual OHR ID entry)
                 setTimeout(() => {
                     oTable.initialized().then(() => {
                         setTimeout(() => {
@@ -11368,16 +11392,13 @@ sap.ui.define([
         },
 
         onAllocatedPress: function () {
-            // sap.m.MessageToast.show("Allocated Count clicked");
             var oLogButton = this.byId("uploadLogButton");
-
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("employeeAllocationReportPage"));
 
             if (this._bEmployeeAllocationReportLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("EmployeeAllocationReportTable");
                 if (oTable) {
                     this.initializeTable("EmployeeAllocationReportTable").catch(() => {
@@ -11392,7 +11413,7 @@ sap.ui.define([
             const oCustomersPage = this.getView().byId("employeeAllocationReportPage");
             oCustomersPage.destroyContent();
 
-            // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+            //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
 
             Fragment.load({
                 id: this.getView().getId(),
@@ -11416,10 +11437,10 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-                // ✅ Populate Country dropdown when Customers fragment loads
+                //  Populate Country dropdown when Customers fragment loads
                 this._populateCountryDropdown();
 
-                // ✅ Set default filters for Customers FilterBar
+                //  Set default filters for Customers FilterBar
                 const oFilterBar = this.byId("employeeAllocationReportFilterBar");
                 if (oFilterBar) {
                     oFilterBar.setModel(oModel, "default");
@@ -11431,7 +11452,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oFilterBar, ["employeeName", "currentProject", "customer"]);
                     }, 1000);
@@ -11442,7 +11463,7 @@ sap.ui.define([
 
                 // Initialize table-specific functionality
                 this.initializeTable("EmployeeAllocationReportTable").then(() => {
-                    // ✅ Trigger initial data load by firing FilterBar search event
+                    //  Trigger initial data load by firing FilterBar search event
                     // This ensures table binds even when there are no filter conditions
                     setTimeout(() => {
                         if (oFilterBar) {
@@ -11462,16 +11483,13 @@ sap.ui.define([
         },
 
         onBenchPress: function () {
-            // sap.m.MessageToast.show("Bench Count clicked");
-
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("employeeBenchReportPage"));
 
             const oBenchPage = this.byId("employeeBenchReportPage");
             if (this._bEmployeeBenchReportTableLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("EmployeeBenchReportTable");
                 if (oTable) {
                     this.initializeTable("EmployeeBenchReportTable").catch(() => {
@@ -11505,8 +11523,7 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-
-                // ✅ Set default filters for Customers FilterBar
+                //  Set default filters for Customers FilterBar
                 const oFilterBar = this.byId("employeeBenchReportFilterBar");
                 if (oFilterBar) {
                     oFilterBar.setModel(oModel, "default");
@@ -11518,7 +11535,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
                     }, 1000);
@@ -11529,7 +11546,7 @@ sap.ui.define([
 
                 // Initialize table-specific functionality
                 this.initializeTable("EmployeeBenchReportTable").then(() => {
-                    // ✅ Trigger initial data load by firing FilterBar search event
+                    //  Trigger initial data load by firing FilterBar search event
                     // This ensures table binds even when there are no filter conditions
                     setTimeout(() => {
                         if (oFilterBar) {
@@ -11550,18 +11567,13 @@ sap.ui.define([
         },
 
         onUnallocatedBenchPress: function () {
-            // sap.m.MessageToast.show("Pre Allocated clicked");
-
             var oLogButton = this.byId("uploadLogButton");
-
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("employeeAllocationReportPage"));
 
-
             if (this._bEmployeeAllocationReportLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("EmployeeAllocationReportTable");
                 if (oTable) {
                     this.initializeTable("EmployeeAllocationReportTable").catch(() => {
@@ -11575,7 +11587,7 @@ sap.ui.define([
             const oCustomersPage = this.getView().byId("employeeAllocationReportPage");
             oCustomersPage.destroyContent();
 
-            // ✅ CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
+            //  CRITICAL: Remove existing content before adding new fragment to prevent duplicate IDs
 
             Fragment.load({
                 id: this.getView().getId(),
@@ -11599,10 +11611,10 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-                // ✅ Populate Country dropdown when Customers fragment loads
+                //  Populate Country dropdown when Customers fragment loads
                 this._populateCountryDropdown();
 
-                // ✅ Set default filters for Customers FilterBar
+                //  Set default filters for Customers FilterBar
                 const oFilterBar = this.byId("employeeAllocationReportFilterBar");
                 if (oFilterBar) {
                     oFilterBar.setModel(oModel, "default");
@@ -11614,7 +11626,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oFilterBar, ["employeeName", "currentProject", "customer"]);
                     }, 1000);
@@ -11624,7 +11636,7 @@ sap.ui.define([
                 }
 
                 this.initializeTable("EmployeeAllocationReportTable").then(() => {
-                    // ✅ Trigger initial data load by firing FilterBar search event
+                    //  Trigger initial data load by firing FilterBar search event
                     // This ensures table binds even when there are no filter conditions
                     const oMdcTable = this.byId("EmployeeAllocationReportTable");
 
@@ -11658,19 +11670,12 @@ sap.ui.define([
         },
 
         onUnproductiveBenchPress: function () {
-            // sap.m.MessageToast.show("Unproductive Bench clicked");
-
-
-
-
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("employeeBenchReportPage"));
-
             const oBenchPage = this.byId("employeeBenchReportPage");
             if (this._bEmployeeBenchReportTableLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("EmployeeBenchReportTable");
                 if (oTable) {
                     this.initializeTable("EmployeeBenchReportTable").catch(() => {
@@ -11704,8 +11709,7 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-
-                // ✅ Set default filters for Customers FilterBar
+                //  Set default filters for Customers FilterBar
                 const oFilterBar = this.byId("employeeBenchReportFilterBar");
                 if (oFilterBar) {
                     oFilterBar.setModel(oModel, "default");
@@ -11717,7 +11721,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
                     }, 1000);
@@ -11728,7 +11732,7 @@ sap.ui.define([
 
                 // Initialize table-specific functionality
                 this.initializeTable("EmployeeBenchReportTable").then(() => {
-                    // ✅ Trigger initial data load by firing FilterBar search event
+                    //  Trigger initial data load by firing FilterBar search event
                     // This ensures table binds even when there are no filter conditions
                     const oMdcTable = this.byId("EmployeeBenchReportTable");
 
@@ -11759,21 +11763,16 @@ sap.ui.define([
                 this._resetSegmentedButtonForFragment("EmployeeBenchReport");
 
             }.bind(this));
-
-
-
         },
 
         onNetBenchPress: function () {
-            // sap.m.MessageToast.show("Inactive Bench clicked");
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("employeeBenchReportPage"));
 
             const oBenchPage = this.byId("employeeBenchReportPage");
             if (this._bEmployeeBenchReportTableLoaded) {
-                // ✅ Even if already loaded, re-initialize table to refresh p13n state
+                //  Even if already loaded, re-initialize table to refresh p13n state
                 const oTable = this.byId("EmployeeBenchReportTable");
                 if (oTable) {
                     this.initializeTable("EmployeeBenchReportTable").catch(() => {
@@ -11807,8 +11806,7 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-
-                // ✅ Set default filters for Customers FilterBar
+                //  Set default filters for Customers FilterBar
                 const oFilterBar = this.byId("employeeBenchReportFilterBar");
                 if (oFilterBar) {
                     oFilterBar.setModel(oModel, "default");
@@ -11820,7 +11818,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oFilterBar, ["ohrId", "band", "skills"]);
                     }, 1000);
@@ -11831,7 +11829,7 @@ sap.ui.define([
 
                 // Initialize table-specific functionality
                 this.initializeTable("EmployeeBenchReportTable").then(() => {
-                    // ✅ Trigger initial data load by firing FilterBar search event
+                    //  Trigger initial data load by firing FilterBar search event
                     // This ensures table binds even when there are no filter conditions
                     const oMdcTable = this.byId("EmployeeBenchReportTable");
 
@@ -11858,21 +11856,15 @@ sap.ui.define([
                         }
                     }, 1000);
                 });
-
                 // Reset segmented button to "less" state for this fragment
                 this._resetSegmentedButtonForFragment("EmployeeBenchReport");
-
             }.bind(this));
-
         },
 
         onDemandsPress: function () {
-            // sap.m.MessageToast.show("Demands Count clicked");
             var oLogButton = this.byId("uploadLogButton");
-
             let oNavContainer = this.byId("pageContainer");
             oNavContainer.to(this.byId("demandsPage"));
-
 
             const oMasterDemandsPage = this.byId("demandsPage");
             if (this._bMasterDemandsLoaded) {
@@ -11885,12 +11877,8 @@ sap.ui.define([
                 }
                 return;
             }
-
             this._bMasterDemandsLoaded = true;
             oMasterDemandsPage.destroyContent();
-
-
-
 
             Fragment.load({
                 id: this.getView().getId(),
@@ -11913,7 +11901,7 @@ sap.ui.define([
                     oTable.setModel(oModel);
                 }
 
-                // ✅ Set default filters for Opportunities FilterBar
+                //  Set default filters for Opportunities FilterBar
                 const oMasterDemandsFilterBar = this.byId("masterDemandsFilterBar");
                 if (oMasterDemandsFilterBar) {
                     oMasterDemandsFilterBar.setModel(oModel, "default");
@@ -11925,7 +11913,7 @@ sap.ui.define([
                     if (oFiltersModel) {
                         oMasterDemandsFilterBar.setModel(oFiltersModel, "$filters");
                     }
-                    // ✅ Set defaults with multiple retries
+                    //  Set defaults with multiple retries
                     setTimeout(() => {
                         this._setDefaultFilterFields(oMasterDemandsFilterBar, ["SapPId"]);
                     }, 1000);
@@ -11939,7 +11927,7 @@ sap.ui.define([
                 // Reset segmented button to "less" state for this fragment
                 this._resetSegmentedButtonForFragment("MasterDemands");
 
-                // ✅ Initialize Opportunity ID field and form
+                //  Initialize Opportunity ID field and form
                 setTimeout(() => {
                     oTable.initialized().then(() => {
                         setTimeout(() => {
@@ -11964,11 +11952,94 @@ sap.ui.define([
         },
 
         onProjectsEndingPress: function () {
-            sap.m.MessageToast.show("Coming Soon");
+           // sap.m.MessageToast.show("Coming Soon");
+             var oLogButton = this.byId("uploadLogButton");
+            let oNavContainer = this.byId("pageContainer");
+            oNavContainer.to(this.byId("projectsNearingCompletionReportPage"));
+
+            const oProjectsNearingCompletionReportPage = this.byId("projectsNearingCompletionReportPage");
+            if (this._projectsNearingCompletionReport) {
+                // console.log("[MasterDemands] Fragment already loaded, skipping");
+                const oTable = this.byId("ProjectsNearingCompletionReportTable");
+                if (oTable) {
+                    this.initializeTable("ProjectsNearingCompletionReportTable").catch(() => {
+                        // Ignore errors during re-initialization
+                    });
+                }
+                return;
+            }
+            this._projectsNearingCompletionReport = true;
+            oProjectsNearingCompletionReportPage.destroyContent();
+
+            Fragment.load({
+                id: this.getView().getId(),
+                name: "glassboard.view.fragments.ProjectsNearingCompletionReport",
+                controller: this
+            }).then(function (oFragment) {
+                oProjectsNearingCompletionReportPage.addContent(oFragment);
+
+                const oTable = this.byId("ProjectsNearingCompletionReportTable");
+                // Ensure table starts with show-less state
+                oTable.removeStyleClass("show-more");
+                oTable.addStyleClass("show-less");
+
+                if (oLogButton) {
+                    oLogButton.setVisible(false);
+                }
+                // Ensure the table has the correct model
+                const oModel = this.getOwnerComponent().getModel();
+                if (oModel) {
+                    oTable.setModel(oModel);
+                }
+
+                //  Set default filters for Opportunities FilterBar
+                const oProjectsNearingCompletionReportFilterBar = this.byId("projectsNearingCompletionReportFilterBar");
+                if (oProjectsNearingCompletionReportFilterBar) {
+                    oProjectsNearingCompletionReportFilterBar.setModel(oModel, "default");
+                    const oFilterModel = this.getView().getModel("filterModel");
+                    const oFiltersModel = this.getView().getModel("$filters");
+                    if (oFilterModel) {
+                        oProjectsNearingCompletionReportFilterBar.setModel(oFilterModel, "filterModel");
+                    }
+                    if (oFiltersModel) {
+                        oProjectsNearingCompletionReportFilterBar.setModel(oFiltersModel, "$filters");
+                    }
+                    //  Set defaults with multiple retries
+                    setTimeout(() => {
+                        this._setDefaultFilterFields(oProjectsNearingCompletionReportFilterBar, ["SapPId"]);
+                    }, 1000);
+                    setTimeout(() => {
+                        this._setDefaultFilterFields(oProjectsNearingCompletionReportFilterBar, ["SapPId"]);
+                    }, 2000);
+                }
+
+                // Initialize table-specific functionality
+                this.initializeTable("ProjectsNearingCompletionReportTable");
+                // Reset segmented button to "less" state for this fragment
+                this._resetSegmentedButtonForFragment("ProjectsNearingCompletionReport");
+
+                //  Initialize Opportunity ID field and form
+                setTimeout(() => {
+                    oTable.initialized().then(() => {
+                        setTimeout(() => {
+                            this._initializeOpportunityIdField();
+                            const aSelectedContexts = oTable.getSelectedContexts ? oTable.getSelectedContexts() : [];
+                            if (aSelectedContexts.length === 0) {
+                                this._onOppDialogData([]);
+                            }
+                        }, 500);
+                    }).catch(() => {
+                        setTimeout(() => {
+                            this._initializeOpportunityIdField();
+                        }, 1000);
+                    });
+                }, 300);
+            }.bind(this));
+
         },
         _onCustomerChange: function () {
             this.byId("Resinput_proj").setEnabled(true);
-            // ✅ Clear project field when customer changes (to ensure correct customer-project relationship)
+            //  Clear project field when customer changes (to ensure correct customer-project relationship)
             const oProjectInput = this.byId("Resinput_proj");
             if (oProjectInput) {
                 oProjectInput.setValue("");
@@ -11982,11 +12053,9 @@ sap.ui.define([
             // }
             this.byId("Resinput_Customer").setValue("");
             this.byId("Resinput_proj").setEnabled(false);
-            // ✅ Clear customer filter when customer selection is cancelled
+            //  Clear customer filter when customer selection is cancelled
             this._sAllocateCustomerFilter = null;
             this._onProjectChangeCancel();
-
-
         },
         // _onProjectChange: function () {
         //     this.byId("Resinput_emp").setEnabled(true);
@@ -12043,25 +12112,25 @@ sap.ui.define([
                 });
 
                 const formatDate = (d) => {
-    if (!d) return "N/A";
-    const dt = new Date(d);
-    const year = String(dt.getFullYear()).slice(-2);
-    const month = String(dt.getMonth() + 1).padStart(2, '0');
-    const day = String(dt.getDate()).padStart(2, '0');
-    return `${month}/${day}/${year}`;
-};
- 
-aAllocations.forEach(alloc => {
-    oTable.addItem(new sap.m.ColumnListItem({
-        cells: [
-            new sap.m.Text({ text: alloc.employeeId }),
-            new sap.m.Text({ text: alloc.to_Employee?.fullName || "N/A" }),
-            new sap.m.Text({ text: String(alloc.allocationPercentage) }),
-            new sap.m.Text({ text: formatDate(alloc.startDate) }),
-            new sap.m.Text({ text: formatDate(alloc.endDate) })
-        ]
-    }));
-});
+                    if (!d) return "N/A";
+                    const dt = new Date(d);
+                    const year = String(dt.getFullYear()).slice(-2);
+                    const month = String(dt.getMonth() + 1).padStart(2, '0');
+                    const day = String(dt.getDate()).padStart(2, '0');
+                    return `${month}/${day}/${year}`;
+                };
+                
+                aAllocations.forEach(alloc => {
+                    oTable.addItem(new sap.m.ColumnListItem({
+                        cells: [
+                            new sap.m.Text({ text: alloc.employeeId }),
+                            new sap.m.Text({ text: alloc.to_Employee?.fullName || "N/A" }),
+                            new sap.m.Text({ text: String(alloc.allocationPercentage) }),
+                            new sap.m.Text({ text: formatDate(alloc.startDate) }),
+                            new sap.m.Text({ text: formatDate(alloc.endDate) })
+                        ]
+                    }));
+                });
 
                 oVBox.addItem(oTable);
 
@@ -12095,8 +12164,6 @@ aAllocations.forEach(alloc => {
                 oVBox.removeAllItems();    // remove previous allocations
                 oVBox.addItem(new sap.m.Text({ text: "Select a project to see allocated employees" })); // restore default message
             }
-
-
         },
         _onEmployeeChange: async function () {
             this.byId("startDate").setEnabled(true);
@@ -12199,9 +12266,6 @@ aAllocations.forEach(alloc => {
                     text: "Error loading allocation details: " + (err.message || "Unknown error")
                 }));
             }
-
-
-
         },
         _onEmployeeChangeCancel: function () {
             // Disable form fields
@@ -12216,7 +12280,7 @@ aAllocations.forEach(alloc => {
             this.byId("endDate").setDateValue(null);
             this.byId("allocationPercentage_allocate").setValue("");
 
-            // ✅ Clear allocations panel content
+            //  Clear allocations panel content
             const oPanel = this.byId("selectedEmployeesAllocationPanel");
             const oVBox = this.byId("selectedEmployeesAllocationVBox");
 
@@ -12228,7 +12292,7 @@ aAllocations.forEach(alloc => {
         },
         onAllocateConfirmNew: async function () {
 
-            // ✅ CRITICAL: Frontend validation before submission
+            //  CRITICAL: Frontend validation before submission
             const sEmployeeId = this.byId("Resinput_emp")?.data("selectedId");
             const sProjectId = this.byId("Resinput_proj")?.data("selectedId");
             const sCustomerId = this.byId("Resinput_Customer")?.data("selectedId");
@@ -12236,7 +12300,7 @@ aAllocations.forEach(alloc => {
             const sEndDate = this.byId("endDate")?.getValue();
             const sAllocationPercentage = this.byId("allocationPercentage_allocate")?.getValue();
 
-            // ✅ Validate required fields
+            //  Validate required fields
             if (!sEmployeeId || !sProjectId || !sCustomerId) {
                 sap.m.MessageBox.error("Please select Customer, Project, and Employee before creating allocation.", {
                     title: "Required Fields Missing"
@@ -12244,7 +12308,7 @@ aAllocations.forEach(alloc => {
                 return;
             }
 
-            // ✅ Validate allocation percentage
+            //  Validate allocation percentage
             let iAllocationPercentage = 100; // default
             if (sAllocationPercentage !== null && sAllocationPercentage !== undefined && sAllocationPercentage !== "") {
                 iAllocationPercentage = parseInt(sAllocationPercentage, 10);
@@ -12262,7 +12326,7 @@ aAllocations.forEach(alloc => {
                 }
             }
 
-            // ✅ Validate dates
+            //  Validate dates
             if (!sStartDate || !sEndDate || sStartDate.trim() === "" || sEndDate.trim() === "") {
                 sap.m.MessageBox.error("Please select both From Date and To Date for the allocation.", {
                     title: "Dates Required"
@@ -12270,17 +12334,17 @@ aAllocations.forEach(alloc => {
                 return;
             }
 
-            // ✅ Validate date range (startDate <= endDate)
+            //  Validate date range (startDate <= endDate)
             const oStartDate = new Date(sStartDate);
             const oEndDate = new Date(sEndDate);
             if (oStartDate > oEndDate) {
-                sap.m.MessageBox.error(`Start Date (${sStartDate}) cannot be later than End Date (${sEndDate}).`, {
+                sap.m.MessageBox.error(`From Date (${sStartDate}) cannot be later than To Date (${sEndDate}).`, {
                     title: "Invalid Date Range"
                 });
                 return;
             }
 
-            // ✅ Validate dates against project dates (if stored)
+            //  Validate dates against project dates (if stored)
             const oStartDatePicker = this.byId("startDate");
             const oEndDatePicker = this.byId("endDate");
             const sProjectStartDate = oStartDatePicker?.data("projectStartDate");
@@ -12316,7 +12380,6 @@ aAllocations.forEach(alloc => {
                 allocationDate: new Date().toISOString().slice(0, 10), // today
                 allocationPercentage: iAllocationPercentage
             };
-
 
             // OData V4 create
             const oModel = this.getView().getModel();
@@ -12380,14 +12443,7 @@ aAllocations.forEach(alloc => {
                         oModel.resetChanges("changesGroup");
                     }
                 });
-
-
             // this._onCustomerChangeCancel();
-
         }
-
-
-
-
     });
 });
