@@ -19,6 +19,15 @@ sap.ui.define([
         return "EmployeeAllocationReportTableDelegate";
     };
 
+    EmployeeAllocationReportTableDelegate.fetchProperties = function (oTable) {
+    return BaseTableDelegate.fetchProperties.apply(this, arguments)
+        .then(function (aProperties) {
+            return aProperties.filter(function (oProperty) {
+                return oProperty.name !== "allocationId";
+            });
+        });
+    };
+
     // ✅ Custom header mappings for Employee Allocation Report
     EmployeeAllocationReportTableDelegate._getCustomHeaders = function (sTableId) {
 
